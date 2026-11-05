@@ -1,10 +1,20 @@
 
 import React, { useState } from 'react';
 import {
-  Cpu, Zap, Layers, PlaySquare, Award, Ticket,
-  ArrowUpRight, DollarSign, Check, X, Gem,
-  Pickaxe, Activity, Sparkles, Gauge, Settings,
-  Coins, Factory
+  Cpu,
+  Zap,
+  Layers,
+  PlaySquare,
+  Award,
+  Ticket,
+  ArrowUpRight,
+  Check,
+  X,
+  Pickaxe,
+  Activity,
+  Settings,
+  Coins,
+  Factory
 } from 'lucide-react';
 
 // ======================================================
