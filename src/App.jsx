@@ -50,12 +50,14 @@ const modules = [
 export default function LabCoinApp() {
   const [activeTab, setActiveTab] = useState('claim');
   const [balance] = useState('0.00500000');
-  const [bonusChecked, setBonusChecked] = useState(false);
 
   // Estado temporal de demostración
   const [claimsToday, setClaimsToday] = useState(0);
   const [nextClaimAt, setNextClaimAt] = useState(0);
   const [currentTime, setCurrentTime] = useState(Date.now());
+
+  // Ventana de bonus después del claim
+  const [showBonusOffer, setShowBonusOffer] = useState(false);
 
   const [utcDay, setUtcDay] = useState(
     new Date().toISOString().slice(0, 10)
@@ -100,11 +102,23 @@ export default function LabCoinApp() {
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
 
+  // ====================================================
+  // RECLAMAR Y MOSTRAR OFERTA DE TICKET
+  // ====================================================
+
   const handleClaim = () => {
     if (!canClaim) return;
 
     setClaimsToday((previous) => previous + 1);
     setNextClaimAt(Date.now() + COOLDOWN_MS);
+
+    // Mostrar oferta de ticket adicional
+    setShowBonusOffer(true);
+  };
+
+  const handleWatchVideo = () => {
+    setShowBonusOffer(false);
+    setActiveTab('videos');
   };
 
   const claimStatus = dailyLimitReached
@@ -235,9 +249,9 @@ export default function LabCoinApp() {
             {/* FAUCET CLAIM STATION */}
             {activeTab === 'claim' ? (
 
-              <div className="p-3 md:p-5">
+              <div className="p-3 md:p-4">
 
-                <div className="relative max-w-2xl mx-auto overflow-hidden rounded-[24px] border border-cyan-300/20 bg-[#0b1c2d] shadow-[0_12px_35px_rgba(0,0,0,.30)]">
+                <div className="relative max-w-xl mx-auto overflow-hidden rounded-[20px] border border-cyan-300/20 bg-[#0b1c2d] shadow-[0_10px_30px_rgba(0,0,0,.25)]">
 
                   {/* EFECTOS DE LUZ */}
                   <div className="absolute inset-0 pointer-events-none">
@@ -245,25 +259,25 @@ export default function LabCoinApp() {
                     <div className="absolute bottom-0 right-0 w-40 h-40 rounded-full bg-blue-500/10 blur-[60px]" />
                   </div>
 
-                  <div className="relative z-10 p-4 sm:p-5 md:p-6">
+                  <div className="relative z-10 p-3 sm:p-4">
 
                     {/* ENCABEZADO */}
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-3">
 
                       <div>
                         <div className="flex items-center gap-2">
-                          <Sparkles size={13} className="text-cyan-300" />
-                          <p className="text-[8px] sm:text-[9px] text-cyan-300 font-black tracking-[.22em]">
+                          <Sparkles size={12} className="text-cyan-300" />
+                          <p className="text-[8px] text-cyan-300 font-black tracking-[.2em]">
                             LABCOIN REWARD STATION
                           </p>
                         </div>
 
-                        <h3 className="text-lg sm:text-xl font-black mt-1">
+                        <h3 className="text-base font-black mt-0.5">
                           Claim Station
                         </h3>
                       </div>
 
-                      <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-emerald-400/10 border border-emerald-300/20">
+                      <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-400/10 border border-emerald-300/20">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                         <span className="text-[8px] text-emerald-300 font-black tracking-wider">
                           ONLINE
@@ -271,42 +285,32 @@ export default function LabCoinApp() {
                       </div>
                     </div>
 
-                    {/* RECOMPENSA */}
-                    <div className="relative rounded-[20px] border border-cyan-300/20 bg-gradient-to-br from-[#163d56] via-[#102d44] to-[#0c2035] px-4 py-5 text-center overflow-hidden">
+                    {/* RECOMPENSA COMPACTA */}
+                    <div className="rounded-2xl border border-cyan-300/20 bg-gradient-to-r from-[#163d56] to-[#0c2035] px-3 py-3 text-center">
 
-                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,.12),transparent_70%)] pointer-events-none" />
+                      <p className="text-[8px] uppercase tracking-[.2em] text-slate-300 font-bold">
+                        Your available reward
+                      </p>
 
-                      <div className="relative">
-
-                        <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-cyan-300/10 border border-cyan-200/20 flex items-center justify-center">
-                          <Coins size={21} className="text-cyan-300" />
-                        </div>
-
-                        <p className="text-[8px] uppercase tracking-[.25em] text-slate-300 font-bold">
-                          Your available reward
-                        </p>
-
-                        <div className="flex items-baseline justify-center gap-2 mt-2">
-                          <span className="text-4xl sm:text-5xl font-black font-mono tracking-tight text-white drop-shadow-[0_0_20px_rgba(34,211,238,.25)]">
-                            {CLAIM_REWARD}
-                          </span>
-                          <span className="text-base sm:text-xl font-black text-cyan-300">
-                            USDT
-                          </span>
-                        </div>
-
+                      <div className="flex items-baseline justify-center gap-2 mt-1">
+                        <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-white">
+                          {CLAIM_REWARD}
+                        </span>
+                        <span className="text-sm font-black text-cyan-300">
+                          USDT
+                        </span>
                       </div>
                     </div>
 
                     {/* BOTÓN CLAIM */}
-                    <div className="max-w-md mx-auto mt-4">
+                    <div className="max-w-sm mx-auto mt-3">
 
                       <button
                         onClick={handleClaim}
                         disabled={!canClaim}
-                        className={`group relative w-full overflow-hidden rounded-xl border-b-[4px] py-3.5 px-4 transition-all duration-200 ${
+                        className={`group relative w-full overflow-hidden rounded-xl border-b-[3px] py-3 px-3 transition-all duration-200 ${
                           canClaim
-                            ? 'bg-gradient-to-b from-[#70f4f4] via-[#20c5df] to-[#0879b9] border-[#07517e] shadow-[0_6px_22px_rgba(34,211,238,.22)] hover:brightness-110 active:translate-y-1 active:border-b-0 cursor-pointer'
+                            ? 'bg-gradient-to-b from-[#70f4f4] via-[#20c5df] to-[#0879b9] border-[#07517e] shadow-[0_5px_18px_rgba(34,211,238,.2)] hover:brightness-110 active:translate-y-1 active:border-b-0 cursor-pointer'
                             : 'bg-gradient-to-b from-slate-600 to-slate-700 border-slate-800 opacity-80 cursor-not-allowed'
                         }`}
                       >
@@ -315,26 +319,26 @@ export default function LabCoinApp() {
                           <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                         )}
 
-                        <span className="relative flex items-center justify-center gap-3">
+                        <span className="relative flex items-center justify-center gap-2">
 
                           {canClaim ? (
                             <>
-                              <Zap size={19} className="text-[#07324b]" />
-                              <span className="text-xs sm:text-sm font-black text-[#06263d] tracking-[.13em]">
+                              <Zap size={17} className="text-[#07324b]" />
+                              <span className="text-xs font-black text-[#06263d] tracking-[.12em]">
                                 CLAIM {CLAIM_REWARD} USDT
                               </span>
-                              <ArrowUpRight size={18} className="text-[#07324b]" />
+                              <ArrowUpRight size={16} className="text-[#07324b]" />
                             </>
                           ) : dailyLimitReached ? (
                             <>
-                              <Check size={19} />
+                              <Check size={17} />
                               <span className="text-xs font-black tracking-widest">
                                 DAILY LIMIT REACHED
                               </span>
                             </>
                           ) : (
                             <>
-                              <Timer size={19} />
+                              <Timer size={17} />
                               <span className="text-xs font-black tracking-widest">
                                 WAIT {formatCountdown(cooldownRemaining)}
                               </span>
@@ -345,14 +349,14 @@ export default function LabCoinApp() {
                       </button>
 
                       {/* ESTADO */}
-                      <div className="flex items-center justify-center gap-2 mt-2.5">
+                      <div className="flex items-center justify-center gap-2 mt-2">
                         {canClaim ? (
-                          <ShieldCheck size={12} className="text-emerald-400" />
+                          <ShieldCheck size={11} className="text-emerald-400" />
                         ) : (
-                          <Timer size={12} className="text-amber-300" />
+                          <Timer size={11} className="text-amber-300" />
                         )}
 
-                        <p className={`text-[8px] font-black tracking-[.16em] ${
+                        <p className={`text-[8px] font-black tracking-[.15em] ${
                           canClaim ? 'text-emerald-300' : 'text-amber-300'
                         }`}>
                           {claimStatus}
@@ -361,19 +365,19 @@ export default function LabCoinApp() {
                     </div>
 
                     {/* TEMPORIZADOR Y CONTADOR */}
-                    <div className="grid grid-cols-2 gap-3 mt-4">
+                    <div className="grid grid-cols-2 gap-2 mt-3">
 
                       {/* NEXT CLAIM */}
-                      <div className="rounded-xl bg-[#071725]/80 border border-white/5 p-3">
+                      <div className="rounded-xl bg-[#071725]/80 border border-white/5 p-2.5">
 
-                        <div className="flex items-center gap-2">
-                          <Timer size={14} className="text-cyan-300" />
+                        <div className="flex items-center gap-1.5">
+                          <Timer size={12} className="text-cyan-300" />
                           <p className="text-[8px] text-slate-400 uppercase font-bold tracking-wider">
                             Next claim
                           </p>
                         </div>
 
-                        <p className="text-xl font-mono font-black text-cyan-300 mt-2 tabular-nums">
+                        <p className="text-lg font-mono font-black text-cyan-300 mt-1 tabular-nums">
                           {dailyLimitReached
                             ? '--:--'
                             : cooldownRemaining > 0
@@ -381,7 +385,7 @@ export default function LabCoinApp() {
                               : '00:00'}
                         </p>
 
-                        <div className="mt-2 h-1 rounded-full bg-[#1b3448] overflow-hidden">
+                        <div className="mt-1.5 h-1 rounded-full bg-[#1b3448] overflow-hidden">
                           <div
                             className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-blue-400 transition-all duration-1000"
                             style={{
@@ -394,23 +398,23 @@ export default function LabCoinApp() {
                       </div>
 
                       {/* DAILY CLAIMS */}
-                      <div className="rounded-xl bg-[#071725]/80 border border-white/5 p-3">
+                      <div className="rounded-xl bg-[#071725]/80 border border-white/5 p-2.5">
 
-                        <div className="flex items-center gap-2">
-                          <Ticket size={14} className="text-amber-300" />
+                        <div className="flex items-center gap-1.5">
+                          <Ticket size={12} className="text-amber-300" />
                           <p className="text-[8px] text-slate-400 uppercase font-bold tracking-wider">
                             Daily claims
                           </p>
                         </div>
 
-                        <p className="text-xl font-black text-white mt-2 tabular-nums">
+                        <p className="text-lg font-black text-white mt-1 tabular-nums">
                           {claimsToday}
-                          <span className="text-sm text-slate-400">
+                          <span className="text-xs text-slate-400">
                             {' '}/ {DAILY_LIMIT}
                           </span>
                         </p>
 
-                        <div className="mt-2 h-1 rounded-full bg-[#1b3448] overflow-hidden">
+                        <div className="mt-1.5 h-1 rounded-full bg-[#1b3448] overflow-hidden">
                           <div
                             className="h-full rounded-full bg-gradient-to-r from-amber-300 to-yellow-500 transition-all duration-500"
                             style={{ width: `${progress}%` }}
@@ -421,7 +425,7 @@ export default function LabCoinApp() {
                     </div>
 
                     {/* PROGRESO DE LOS 20 CLAIMS */}
-                    <div className="grid grid-cols-10 gap-1 mt-3">
+                    <div className="grid grid-cols-10 gap-1 mt-2.5">
                       {Array.from({ length: DAILY_LIMIT }, (_, index) => (
                         <div
                           key={index}
@@ -435,16 +439,16 @@ export default function LabCoinApp() {
                     </div>
 
                     {/* INFORMACIÓN */}
-                    <div className="flex items-center justify-center gap-3 mt-4">
-                      <span className="text-[8px] text-slate-400 font-bold tracking-wider">
+                    <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 mt-3">
+                      <span className="text-[7px] text-slate-400 font-bold tracking-wider">
                         5 MIN COOLDOWN
                       </span>
                       <span className="w-1 h-1 rounded-full bg-slate-600" />
-                      <span className="text-[8px] text-slate-400 font-bold tracking-wider">
+                      <span className="text-[7px] text-slate-400 font-bold tracking-wider">
                         20 CLAIMS DAILY
                       </span>
                       <span className="w-1 h-1 rounded-full bg-slate-600" />
-                      <span className="text-[8px] text-slate-400 font-bold tracking-wider">
+                      <span className="text-[7px] text-slate-400 font-bold tracking-wider">
                         UTC RESET
                       </span>
                     </div>
@@ -453,8 +457,8 @@ export default function LabCoinApp() {
                 </div>
 
                 {/* AVISO DE DEMOSTRACIÓN */}
-                <div className="max-w-2xl mx-auto mt-4 p-3 rounded-xl bg-amber-400/5 border border-amber-300/20">
-                  <p className="text-[9px] text-amber-200 text-center leading-relaxed">
+                <div className="max-w-xl mx-auto mt-3 p-2.5 rounded-xl bg-amber-400/5 border border-amber-300/20">
+                  <p className="text-[8px] text-amber-200 text-center leading-relaxed">
                     DEMO MODE: claims are simulated in this browser.
                     Real USDT crediting, cooldown validation and daily
                     limits will be secured through Supabase.
@@ -486,29 +490,6 @@ export default function LabCoinApp() {
               </div>
             )}
 
-            {/* BONUS */}
-            <div className="mx-4 md:mx-7 mb-6 p-4 rounded-2xl bg-[#0a1c2c] border border-white/10 flex items-center gap-3">
-
-              <input
-                type="checkbox"
-                id="bonusAd"
-                checked={bonusChecked}
-                onChange={(e) => setBonusChecked(e.target.checked)}
-                className="w-4 h-4 accent-cyan-400 cursor-pointer"
-              />
-
-              <label htmlFor="bonusAd" className="flex-1 cursor-pointer">
-                <span className="block text-xs text-cyan-200 font-black">
-                  Bonus Video Ad
-                </span>
-                <span className="block text-[10px] text-slate-400 mt-1">
-                  Additional video reward option
-                </span>
-              </label>
-
-              <PlaySquare size={20} className="text-cyan-300" />
-            </div>
-
           </main>
         </div>
 
@@ -520,6 +501,91 @@ export default function LabCoinApp() {
         </footer>
 
       </div>
+
+      {/* =================================================
+          VENTANA BONUS: TICKET ADICIONAL POR VIDEO
+      ================================================= */}
+
+      {showBonusOffer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+
+          {/* FONDO OSCURO */}
+          <button
+            type="button"
+            aria-label="Cerrar aviso"
+            onClick={() => setShowBonusOffer(false)}
+            className="absolute inset-0 bg-black/75 backdrop-blur-sm"
+          />
+
+          {/* MODAL */}
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bonus-title"
+            className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-amber-300/30 bg-gradient-to-b from-[#193c54] to-[#091a2b] shadow-[0_20px_80px_rgba(0,0,0,.65)]"
+          >
+
+            {/* LUZ DECORATIVA */}
+            <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-56 h-56 bg-amber-300/10 blur-[70px] rounded-full pointer-events-none" />
+
+            <div className="relative p-5 text-center">
+
+              {/* ICONO */}
+              <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-amber-300/20 to-yellow-500/10 border border-amber-300/30 flex items-center justify-center shadow-[0_0_25px_rgba(251,191,36,.12)]">
+                <Ticket size={29} className="text-amber-300" />
+              </div>
+
+              {/* MENSAJE */}
+              <p className="text-[9px] text-amber-300 font-black tracking-[.22em] mt-4 uppercase">
+                LabCoin Bonus Opportunity
+              </p>
+
+              <h3
+                id="bonus-title"
+                className="text-xl font-black mt-2"
+              >
+                ¡Tu claim fue realizado!
+              </h3>
+
+              <p className="text-xs text-slate-300 leading-relaxed mt-3">
+                ¿Quieres conseguir un
+                <span className="text-amber-300 font-black"> ticket adicional </span>
+                para la lotería de LabCoin?
+              </p>
+
+              <div className="mt-4 p-3 rounded-2xl bg-amber-300/5 border border-amber-300/15">
+                <div className="flex items-center justify-center gap-2">
+                  <PlaySquare size={17} className="text-amber-300" />
+                  <span className="text-xs text-white font-bold">
+                    Mira un video y obtén un ticket extra
+                  </span>
+                </div>
+                <p className="text-[9px] text-slate-400 mt-2">
+                  Es opcional. Puedes continuar sin ver el video.
+                </p>
+              </div>
+
+              {/* ACCIONES */}
+              <button
+                onClick={handleWatchVideo}
+                className="w-full mt-4 py-3 rounded-xl bg-gradient-to-r from-amber-300 to-yellow-500 text-[#30200a] font-black text-xs tracking-wider shadow-[0_5px_18px_rgba(251,191,36,.2)] hover:brightness-110 active:scale-[.98] transition-all flex items-center justify-center gap-2"
+              >
+                <PlaySquare size={17} />
+                VER VIDEO Y OBTENER TICKET
+              </button>
+
+              <button
+                onClick={() => setShowBonusOffer(false)}
+                className="w-full mt-2 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-[10px] font-bold hover:bg-white/10 transition-colors"
+              >
+                AHORA NO, GRACIAS
+              </button>
+
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
