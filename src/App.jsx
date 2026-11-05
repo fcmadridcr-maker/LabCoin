@@ -40,10 +40,11 @@ const modules = [
 
 function MiningLaboratory() {
   return (
-    <div className="relative w-full overflow-hidden rounded-[28px] border border-cyan-200/20 bg-[#10283e] shadow-[0_15px_45px_rgba(0,0,0,.35)]">
+    <div className="relative w-full h-[205px] sm:h-[245px] md:h-[285px] overflow-hidden rounded-[24px] border border-cyan-200/20 bg-[#10283e] shadow-[0_12px_35px_rgba(0,0,0,.30)]">
       <svg
-        viewBox="0 0 900 510"
-        className="block w-full h-auto"
+  viewBox="0 0 900 510"
+  className="block w-full h-full"
+  preserveAspectRatio="xMidYMid meet"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
         aria-label="Laboratorio de minería con pequeños hámsteres ingenieros"
@@ -108,63 +109,190 @@ function MiningLaboratory() {
           </filter>
 
           {/* HÁMSTER INGENIERO */}
-          <g id="labHamster">
-            {/* Sombra */}
-            <ellipse cx="0" cy="130" rx="42" ry="8" fill="#061827" opacity=".3" />
+          
+<g id="labHamster">
+  <defs>
+    <radialGradient id="hamsterFur" cx="35%" cy="25%" r="75%">
+      <stop offset="0%" stopColor="#fff0d8" />
+      <stop offset="42%" stopColor="#e9bd91" />
+      <stop offset="78%" stopColor="#c98b61" />
+      <stop offset="100%" stopColor="#925b43" />
+    </radialGradient>
 
-            {/* Orejas */}
-            <circle cx="-23" cy="28" r="16" fill="#d99c77" />
-            <circle cx="23" cy="28" r="16" fill="#d99c77" />
-            <circle cx="-23" cy="28" r="9" fill="#f5c5bc" />
-            <circle cx="23" cy="28" r="9" fill="#f5c5bc" />
+    <radialGradient id="hamsterCream" cx="45%" cy="25%" r="75%">
+      <stop offset="0%" stopColor="#fffdf3" />
+      <stop offset="75%" stopColor="#f5dfc7" />
+      <stop offset="100%" stopColor="#d9b99c" />
+    </radialGradient>
 
-            {/* Cuerpo */}
-            <ellipse cx="0" cy="96" rx="37" ry="38" fill="#d99e76" />
-            <ellipse cx="0" cy="102" rx="29" ry="30" fill="#fff1df" />
+    <radialGradient id="hamsterEar" cx="50%" cy="35%" r="70%">
+      <stop offset="0%" stopColor="#ffd8d0" />
+      <stop offset="100%" stopColor="#bd7774" />
+    </radialGradient>
 
-            {/* Bata */}
-            <path d="M-29 78 Q-42 91 -36 125 Q0 140 36 125 L29 78 Q0 64 -29 78Z"
-              fill="#f7fcff" stroke="#d3e9f1" strokeWidth="2" />
-            <path d="M-10 75 L0 94 L10 75 L6 116 L-6 116Z"
-              fill="#d8f0f6" />
-            <path d="M-10 76 L0 94 L10 76" fill="none" stroke="#b5dce9" strokeWidth="2" />
+    <linearGradient id="hamsterCoat" x2="0" y2="1">
+      <stop stopColor="#ffffff" />
+      <stop offset=".55" stopColor="#eaf7fc" />
+      <stop offset="1" stopColor="#b9d7e5" />
+    </linearGradient>
 
-            {/* Cabeza */}
-            <ellipse cx="0" cy="55" rx="37" ry="35" fill="#d99e76" />
-            <ellipse cx="0" cy="65" rx="29" ry="22" fill="#fff0dc" />
+    <linearGradient id="hamsterHelmet" x2="0" y2="1">
+      <stop stopColor="#d9ffff" />
+      <stop offset=".35" stopColor="#63dff5" />
+      <stop offset="1" stopColor="#1689bd" />
+    </linearGradient>
 
-            {/* Mejillas */}
-            <ellipse cx="-21" cy="65" rx="10" ry="8" fill="#f4b9b2" opacity=".8" />
-            <ellipse cx="21" cy="65" rx="10" ry="8" fill="#f4b9b2" opacity=".8" />
+    <filter id="hamsterShadow" x="-40%" y="-30%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="5" />
+    </filter>
 
-            {/* Ojos */}
-            <ellipse cx="-12" cy="48" rx="5.5" ry="7" fill="#243449" />
-            <ellipse cx="12" cy="48" rx="5.5" ry="7" fill="#243449" />
-            <circle cx="-14" cy="45" r="2" fill="white" />
-            <circle cx="10" cy="45" r="2" fill="white" />
+    <filter id="hamsterFurTexture">
+      <feTurbulence
+        type="fractalNoise"
+        baseFrequency=".8"
+        numOctaves="2"
+        seed="8"
+        result="noise"
+      />
+      <feColorMatrix
+        in="noise"
+        type="saturate"
+        values="0"
+        result="grayNoise"
+      />
+      <feComponentTransfer in="grayNoise" result="softNoise">
+        <feFuncA type="table" tableValues="0 .12" />
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="softNoise" mode="soft-light" />
+    </filter>
+  </defs>
 
-            {/* Nariz y boca */}
-            <ellipse cx="0" cy="62" rx="5" ry="3.5" fill="#bd777c" />
-            <path d="M0 66 Q-5 73 -10 69 M0 66 Q5 73 10 69"
-              fill="none" stroke="#a86c68" strokeWidth="1.5" strokeLinecap="round" />
+  {/* Sombra de contacto */}
+  <ellipse cx="0" cy="130" rx="43" ry="9"
+    fill="#061827" opacity=".38" filter="url(#hamsterShadow)" />
 
-            {/* Casco */}
-            <path d="M-30 37 Q-28 5 0 7 Q28 5 30 37 Q0 29 -30 37Z"
-              fill="#54cce9" stroke="#d9faff" strokeWidth="2" />
-            <path d="M-35 36 Q0 26 35 36 L31 43 Q0 36 -31 43Z"
-              fill="#249bc8" />
-            <path d="M-13 17 Q0 11 13 17" fill="none" stroke="#d9ffff" strokeWidth="2" opacity=".8" />
+  {/* Patitas traseras */}
+  <ellipse cx="-20" cy="119" rx="13" ry="8" fill="#bd805f" />
+  <ellipse cx="20" cy="119" rx="13" ry="8" fill="#bd805f" />
+  <ellipse cx="-20" cy="117" rx="8" ry="4" fill="#f4c9b0" />
+  <ellipse cx="20" cy="117" rx="8" ry="4" fill="#f4c9b0" />
 
-            {/* Brazos y manos */}
-            <path d="M-28 87 Q-43 88 -40 105" fill="none" stroke="#f6e6d7" strokeWidth="11" strokeLinecap="round" />
-            <path d="M28 87 Q43 88 40 105" fill="none" stroke="#f6e6d7" strokeWidth="11" strokeLinecap="round" />
-            <circle cx="-40" cy="106" r="7" fill="#d99e76" />
-            <circle cx="40" cy="106" r="7" fill="#d99e76" />
+  {/* Orejas */}
+  <ellipse cx="-25" cy="29" rx="17" ry="19"
+    fill="url(#hamsterFur)" />
+  <ellipse cx="25" cy="29" rx="17" ry="19"
+    fill="url(#hamsterFur)" />
+  <ellipse cx="-25" cy="29" rx="10" ry="12"
+    fill="url(#hamsterEar)" />
+  <ellipse cx="25" cy="29" rx="10" ry="12"
+    fill="url(#hamsterEar)" />
 
-            {/* Botones de bata */}
-            <circle cx="0" cy="105" r="2" fill="#7ab6cb" />
-            <circle cx="0" cy="115" r="2" fill="#7ab6cb" />
-          </g>
+  {/* Cuerpo */}
+  <ellipse cx="0" cy="96" rx="39" ry="39"
+    fill="url(#hamsterFur)" filter="url(#hamsterFurTexture)" />
+  <ellipse cx="0" cy="105" rx="29" ry="27"
+    fill="url(#hamsterCream)" />
+
+  {/* Pelaje lateral */}
+  <path d="M-32 82 Q-44 88 -39 104 Q-35 116 -25 119
+    M32 82 Q44 88 39 104 Q35 116 25 119"
+    fill="none" stroke="#f5d5b4" strokeWidth="5"
+    strokeLinecap="round" opacity=".7" />
+
+  {/* Bata */}
+  <path d="M-27 79 Q-39 83 -38 119
+    Q0 137 38 119 L27 79
+    Q0 68 -27 79Z"
+    fill="url(#hamsterCoat)" stroke="#c5e2ed" strokeWidth="2" />
+
+  <path d="M-11 75 L0 94 L11 75 L7 119 L-7 119Z"
+    fill="#d7edf4" />
+  <path d="M-11 75 L0 94 L11 75"
+    fill="none" stroke="#a9cfdf" strokeWidth="2" />
+
+  {/* Bolsillo de la bata */}
+  <path d="M12 98 L27 98 L27 113 L12 113Z"
+    fill="#d5edf5" stroke="#b5d8e5" strokeWidth="1.5" />
+  <path d="M16 102 L23 102"
+    stroke="#69b5ce" strokeWidth="2" strokeLinecap="round" />
+
+  {/* Brazos */}
+  <path d="M-28 88 Q-43 91 -42 106"
+    fill="none" stroke="#f4dfc8" strokeWidth="13"
+    strokeLinecap="round" />
+  <path d="M28 88 Q43 91 42 106"
+    fill="none" stroke="#f4dfc8" strokeWidth="13"
+    strokeLinecap="round" />
+
+  <circle cx="-42" cy="108" r="8" fill="url(#hamsterFur)" />
+  <circle cx="42" cy="108" r="8" fill="url(#hamsterFur)" />
+
+  {/* Cabeza */}
+  <ellipse cx="0" cy="54" rx="39" ry="37"
+    fill="url(#hamsterFur)" filter="url(#hamsterFurTexture)" />
+
+  {/* Reflejo superior del pelaje */}
+  <ellipse cx="-10" cy="30" rx="19" ry="7"
+    fill="#fff4df" opacity=".3" />
+
+  {/* Zona blanca del rostro */}
+  <ellipse cx="0" cy="66" rx="30" ry="23"
+    fill="url(#hamsterCream)" />
+
+  {/* Mejillas */}
+  <ellipse cx="-23" cy="66" rx="12" ry="10"
+    fill="#f6b8ae" opacity=".65" />
+  <ellipse cx="23" cy="66" rx="12" ry="10"
+    fill="#f6b8ae" opacity=".65" />
+
+  {/* Ojos brillantes */}
+  <ellipse cx="-13" cy="49" rx="6" ry="8"
+    fill="#342b2a" />
+  <ellipse cx="13" cy="49" rx="6" ry="8"
+    fill="#342b2a" />
+  <ellipse cx="-14.5" cy="46" rx="2.3" ry="2.8"
+    fill="#ffffff" />
+  <ellipse cx="11.5" cy="46" rx="2.3" ry="2.8"
+    fill="#ffffff" />
+  <circle cx="-10" cy="52" r="1.2" fill="#ffffff" />
+  <circle cx="16" cy="52" r="1.2" fill="#ffffff" />
+
+  {/* Hocico */}
+  <ellipse cx="0" cy="65" rx="13" ry="9"
+    fill="#fff9ee" />
+  <ellipse cx="0" cy="62" rx="5.5" ry="4"
+    fill="#c87e82" />
+  <path d="M0 66 Q-2 72 -8 71 M0 66 Q2 72 8 71"
+    fill="none" stroke="#9b625e" strokeWidth="1.6"
+    strokeLinecap="round" />
+
+  {/* Bigotes */}
+  <path d="M-12 67 L-29 64 M-12 71 L-28 75
+    M12 67 L29 64 M12 71 L28 75"
+    fill="none" stroke="#d6b49c" strokeWidth="1"
+    strokeLinecap="round" />
+
+  {/* Casco */}
+  <path d="M-32 39 Q-30 5 0 5 Q30 5 32 39
+    Q0 29 -32 39Z"
+    fill="url(#hamsterHelmet)" stroke="#e4ffff" strokeWidth="2" />
+
+  <path d="M-37 37 Q0 27 37 37 L32 45
+    Q0 38 -32 45Z"
+    fill="#1689bd" stroke="#b7f5ff" strokeWidth="1.5" />
+
+  <path d="M-19 19 Q-8 9 5 12"
+    fill="none" stroke="#ffffff" strokeWidth="3"
+    strokeLinecap="round" opacity=".8" />
+
+  {/* Insignia del casco */}
+  <circle cx="0" cy="25" r="5" fill="#fff0a6" />
+  <circle cx="0" cy="25" r="2.5" fill="#f3b944" />
+
+  {/* Botones */}
+  <circle cx="0" cy="104" r="2.2" fill="#71b9d0" />
+  <circle cx="0" cy="114" r="2.2" fill="#71b9d0" />
+</g>
         </defs>
 
         {/* AMBIENTE */}
@@ -528,20 +656,20 @@ export default function LabCoinApp() {
 
             {activeTab === 'claim' ? (
 
-              <div className="p-4 md:p-7">
+              <div className="p-3 md:p-5">
 
                 {/* ESCENARIO 3D */}
                 <MiningLaboratory />
 
                 {/* RECOMPENSA */}
-                <div className="mt-7 text-center">
+                <div className="mt-3 text-center">
 
                   <p className="text-[10px] uppercase tracking-[.3em] text-cyan-300 font-black">
                     Mining Reward Available
                   </p>
 
                   <div className="mt-3">
-                    <h3 className="text-4xl md:text-6xl font-black font-mono text-white tracking-tight drop-shadow-[0_0_20px_rgba(34,211,238,.35)]">
+                    <h3 className="text-3xl md:text-5xl font-black font-mono text-white tracking-tight drop-shadow-[0_0_20px_rgba(34,211,238,.35)]">
                       $0.00100
                     </h3>
                     <p className="text-sm text-cyan-300 font-black tracking-[.3em] mt-2">
@@ -559,9 +687,9 @@ export default function LabCoinApp() {
                 </div>
 
                 {/* BOTÓN PRINCIPAL */}
-                <div className="max-w-md mx-auto mt-7">
+                <div className="max-w-md mx-auto mt-4">
 
-                  <button className="w-full rounded-2xl bg-gradient-to-b from-[#66f1f3] via-[#18badb] to-[#0873b4] border-b-[5px] border-[#07517e] py-4 px-6 text-white font-black uppercase tracking-widest text-sm shadow-[0_8px_25px_rgba(14,165,233,.25)] hover:brightness-110 active:translate-y-1 active:border-b-0 transition-all">
+                  <button className="w-full rounded-2xl bg-gradient-to-b from-[#66f1f3] via-[#18badb] to-[#0873b4] border-b-[5px] border-[#07517e] py-3 px-6 text-white font-black uppercase tracking-widest text-sm shadow-[0_8px_25px_rgba(14,165,233,.25)] hover:brightness-110 active:translate-y-1 active:border-b-0 transition-all">
                     <span className="flex items-center justify-center gap-3">
                       <Zap size={20} />
                       Extract Reward
