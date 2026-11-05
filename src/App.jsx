@@ -5,9 +5,9 @@ export default function LabCoinApp() {
   const [activeTab, setActiveTab] = useState('claim');
   const [balance, setBalance] = useState('0.00500000');
   const [tickets, setTickets] = useState(12);
-  const [miningActive, setMiningActive] = useState(true);
 
   const [ptcClaimed, setPtcClaimed] = useState(false);
+  const [shortlinksClaimed, setShortlinksClaimed] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#030712] text-slate-100 font-sans flex flex-col selection:bg-blue-600 selection:text-white">
@@ -37,7 +37,7 @@ export default function LabCoinApp() {
               <DollarSign className="w-4 h-4 text-blue-400" />
             </div>
             <div>
-              <p className="text-[9px] text-slate-400 uppercase font-mono tracking-wider">Balance USDT</p>
+              <p className="text-[9px] text-slate-400 uppercase font-mono tracking-wider">Balance (USDT)</p>
               <p className="text-sm font-mono font-bold text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">${balance}</p>
             </div>
           </div>
@@ -65,7 +65,7 @@ export default function LabCoinApp() {
             { id: 'shortlinks', label: 'Shortlinks & Lotería', icon: Layers },
             { id: 'videos', label: 'Videos Recompensados', icon: PlaySquare },
             { id: 'ptc', label: 'Reactor PTC', icon: Server },
-            { id: 'achievements', label: 'Logros y Tareas', icon: Award },
+            { id: 'achievements', label: 'Logros Diarios', icon: Award },
             { id: 'withdraw', label: 'Terminal de Retiro', icon: ArrowUpRight },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -87,7 +87,7 @@ export default function LabCoinApp() {
           })}
 
           {/* Tarjeta de Estado del Reactor */}
-          <div className="mt-8 bg-gradient-to-b from-blue-950/40 to-slate-900/60 border border-blue-500/20 rounded-2xl p-4 space-y-3">
+          <div className="mt-8 bg-gradient-to-b from-blue-950/40 to-slate-900/60 border border-blue-500/20 rounded-2xl p-4 space-y-3 shadow-lg">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-blue-400 flex items-center gap-1.5">
                 <Activity className="w-3.5 h-3.5 animate-pulse" /> Estado Hash
@@ -97,7 +97,7 @@ export default function LabCoinApp() {
             <div className="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-blue-500/20">
               <div className="bg-gradient-to-r from-blue-600 to-cyan-400 h-full w-3/4 animate-pulse"></div>
             </div>
-            <p className="text-[10px] text-slate-400 font-mono">Velocidad: 45.8 GH/s (Stable)</p>
+            <p className="text-[10px] text-slate-400 font-mono">Velocidad de extracción: 45.8 GH/s</p>
           </div>
         </aside>
 
@@ -110,8 +110,8 @@ export default function LabCoinApp() {
           {activeTab === 'claim' && (
             <div className="space-y-6 relative z-10">
               <div>
-                <h2 className="text-2xl font-black text-white tracking-wide">Reclamo Faucet LabCoin</h2>
-                <p className="text-sm text-slate-400">Extrae micro-recompensas estables directamente a tu balance en USDT.</p>
+                <h2 className="text-2xl font-black text-white tracking-wide">Laboratorio Faucet LabCoin</h2>
+                <p className="text-sm text-slate-400">Extrae micro-recompensas estables directamente a tu balance en USDT. La estación procesa el ciclo automáticamente.</p>
               </div>
 
               <div className="bg-slate-950/60 border border-blue-500/30 rounded-3xl p-8 text-center space-y-6 shadow-[0_0_25px_rgba(37,99,235,0.1)]">
@@ -122,10 +122,10 @@ export default function LabCoinApp() {
                 <div className="max-w-md mx-auto bg-slate-900/80 border border-blue-500/20 p-6 rounded-2xl space-y-5">
                   <div className="flex items-center justify-center space-x-2 text-xs text-slate-400 font-mono bg-slate-950 py-3 rounded-xl border border-slate-800">
                     <ShieldAlert className="w-4 h-4 text-blue-400" />
-                    <span>[ Verificación Antibot de Laboratorio ]</span>
+                    <span>[ Verificación Antibot de Laboratorio Nivel 2 ]</span>
                   </div>
 
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-extrabold py-4 rounded-2xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] tracking-wide">
+                  <button className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-extrabold py-4 rounded-2xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] tracking-wide text-lg">
                     Iniciar Extracción de Recompensa
                   </button>
 
@@ -133,3 +133,114 @@ export default function LabCoinApp() {
                     <input type="checkbox" id="bonusAd" className="rounded border-slate-800 bg-slate-900 text-blue-600 w-4 h-4 accent-blue-500 cursor-pointer" />
                     <label htmlFor="bonusAd" className="text-xs text-slate-300 cursor-pointer select-none">
                       Ver pulso publicitario para ganar <span className="text-amber-400 font-bold drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]">+1 Ticket extra</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'shortlinks' && (
+            <div className="space-y-6 relative z-10">
+              <div>
+                <h2 className="text-2xl font-black text-white tracking-wide">Acortadores & Lotería</h2>
+                <p className="text-sm text-slate-400">Completa enlaces limpios para potenciar tus tickets y aumentar tus probabilidades en el pozo de lotería LabCoin.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map((item) => (
+                  <div key={item} className="bg-slate-950/60 border border-blue-500/20 p-6 rounded-2xl flex justify-between items-center hover:border-blue-500/40 transition-all hover:scale-[1.02]">
+                    <div>
+                      <h3 className="font-bold text-white text-sm">ShrinkMe Conexión #{item}</h3>
+                      <p className="text-xs text-slate-400 mt-1">Recompensa: $0.0005 + <span className="text-amber-400 font-bold">+2 Tickets</span></p>
+                    </div>
+                    <button className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-[0_0_10px_rgba(37,99,235,0.3)]">
+                      Visitar
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'achievements' && (
+            <div className="space-y-6 relative z-10">
+              <div>
+                <h2 className="text-2xl font-black text-white tracking-wide">Logros y Tareas Diarias</h2>
+                <p className="text-sm text-slate-400">Alcanza las metas operativas del día para reclamar bonificaciones automáticas de tickets al finalizar tus tareas.</p>
+              </div>
+              <div className="space-y-4">
+                <div className="bg-slate-950/60 border border-blue-500/20 p-6 rounded-2xl flex justify-between items-center">
+                  <div>
+                    <h3 className="font-bold text-white text-base">Meta Diaria: Ver 10 Anuncios PTC</h3>
+                    <p className="text-xs text-slate-400 mt-1">Progreso del Reactor: <span className="text-blue-400 font-bold font-mono">10 / 10 Completado</span></p>
+                  </div>
+                  {ptcClaimed ? (
+                    <span className="text-emerald-400 text-xs font-bold flex items-center gap-1.5 bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/30">
+                      <CheckCircle2 className="w-4 h-4"/> Reclamado
+                    </span>
+                  ) : (
+                    <button 
+                      onClick={() => { setPtcClaimed(true); setTickets(tickets + 1); }} 
+                      className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all shadow-[0_0_15px_rgba(251,191,36,0.4)]"
+                    >
+                      Reclamar +1 Ticket
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'withdraw' && (
+            <div className="space-y-6 relative z-10">
+              <div>
+                <h2 className="text-2xl font-black text-white tracking-wide">Terminal de Retiro en USDT</h2>
+                <p className="text-sm text-slate-400">Envía tus fondos instantáneamente a tu cuenta vinculada mediante FaucetPay. La terminal procesa el pago al confirmar tu dirección.</p>
+              </div>
+              <div className="bg-slate-950/60 border border-blue-500/30 rounded-3xl p-8 max-w-lg space-y-5 shadow-[0_0_25px_rgba(37,99,235,0.1)]">
+                <div className="space-y-2">
+                  <label className="text-xs font-mono text-slate-400 uppercase tracking-wider">Correo electrónico de FaucetPay</label>
+                  <input 
+                    type="text" 
+                    placeholder="tucorreo@gmail.com" 
+                    className="w-full bg-slate-900 border border-blue-500/30 rounded-2xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 font-mono" 
+                  />
+                </div>
+                <button className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-extrabold py-4 rounded-2xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] text-lg">
+                  Procesar Retiro Inmediato
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'ptc' && (
+            <div className="space-y-6 relative z-10">
+              <div>
+                <h2 className="text-2xl font-black text-white tracking-wide">Reactor PTC</h2>
+                <p className="text-sm text-slate-400">Visualiza los anuncios patrocinados por nuestros partners para generar micro-rendimientos en USDT.</p>
+              </div>
+              <div className="bg-slate-950/60 border border-blue-500/20 p-10 rounded-3xl text-center space-y-4">
+                <p className="text-sm text-slate-400">No hay pulsos publicitarios activos en este momento. Vuelve en unas horas para nuevos anuncios.</p>
+                <span className="text-5xl">📡</span>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'videos' && (
+            <div className="space-y-6 relative z-10">
+              <div>
+                <h2 className="text-2xl font-black text-white tracking-wide">Videos Recompensados</h2>
+                <p className="text-sm text-slate-400">Reproduce contenido multimedia patrocinado corto optimizado para dispositivos móviles y gana fracciones de USDT.</p>
+              </div>
+              <div className="bg-slate-950/60 border border-blue-500/20 p-10 rounded-3xl text-center space-y-4">
+                <p className="text-sm text-slate-400">Canales de video en sincronización con Adsterra y Monetag.</p>
+                <span className="text-5xl">▶️</span>
+              </div>
+            </div>
+          )}
+
+        </main>
+      </div>
+    </div>
+  );
+}
