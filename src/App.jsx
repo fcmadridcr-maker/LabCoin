@@ -37,321 +37,344 @@ const modules = [
 // ESCENARIO PRINCIPAL: LABORATORIO ILUSTRADO
 // ------------------------------------------------------
 
+
 function MiningLaboratory() {
   return (
-    <div className="relative w-full overflow-hidden rounded-[28px] border border-[#477d9b] bg-[#102b43] shadow-[0_15px_45px_rgba(0,0,0,.4)]">
-
+    <div className="relative w-full overflow-hidden rounded-[28px] border border-cyan-200/20 bg-[#10283e] shadow-[0_15px_45px_rgba(0,0,0,.35)]">
       <svg
         viewBox="0 0 900 510"
         className="block w-full h-auto"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
-        aria-label="Laboratorio futurista de minería con reactor central y cristales"
+        aria-label="Laboratorio de minería con pequeños hámsteres ingenieros"
       >
         <defs>
-          <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
-            <stop stopColor="#315a77" />
-            <stop offset="1" stopColor="#122b43" />
+          <linearGradient id="labWall" x2="0" y2="1">
+            <stop stopColor="#d5eff7" />
+            <stop offset=".48" stopColor="#648fae" />
+            <stop offset="1" stopColor="#193b59" />
           </linearGradient>
 
-          <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
-            <stop stopColor="#254962" />
-            <stop offset="1" stopColor="#0b1d30" />
+          <linearGradient id="labFloor" x2="0" y2="1">
+            <stop stopColor="#477b98" />
+            <stop offset="1" stopColor="#10263e" />
           </linearGradient>
 
-          <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
-            <stop stopColor="#b3d0d8" />
-            <stop offset=".35" stopColor="#567f98" />
-            <stop offset="1" stopColor="#203c57" />
+          <linearGradient id="labGlass" x2="1" y2="1">
+            <stop stopColor="#e6ffff" stopOpacity=".65" />
+            <stop offset=".5" stopColor="#58ddeb" stopOpacity=".12" />
+            <stop offset="1" stopColor="#b4f5ff" stopOpacity=".3" />
           </linearGradient>
 
-          <linearGradient id="goldMetal" x1="0" y1="0" x2="1" y2="1">
-            <stop stopColor="#ffe39a" />
-            <stop offset=".5" stopColor="#d99a35" />
-            <stop offset="1" stopColor="#88521c" />
+          <linearGradient id="labMetal" x2="1" y2="1">
+            <stop stopColor="#f1fbff" />
+            <stop offset=".45" stopColor="#91b8cb" />
+            <stop offset="1" stopColor="#456d89" />
           </linearGradient>
 
-          <linearGradient id="cyan" x1="0" y1="0" x2="0" y2="1">
-            <stop stopColor="#b7ffff" />
-            <stop offset=".4" stopColor="#39ddeb" />
-            <stop offset="1" stopColor="#087cae" />
+          <linearGradient id="labBlue" x2="0" y2="1">
+            <stop stopColor="#8df5ff" />
+            <stop offset=".5" stopColor="#29c5e7" />
+            <stop offset="1" stopColor="#0876ad" />
           </linearGradient>
 
-          <radialGradient id="core">
+          <linearGradient id="labGold" x2="0" y2="1">
+            <stop stopColor="#fff1a9" />
+            <stop offset=".5" stopColor="#f5c45b" />
+            <stop offset="1" stopColor="#c47c27" />
+          </linearGradient>
+
+          <radialGradient id="labCore">
             <stop stopColor="#ffffff" />
-            <stop offset=".25" stopColor="#b5ffff" />
-            <stop offset=".65" stopColor="#28cfe9" />
-            <stop offset="1" stopColor="#0878b4" />
+            <stop offset=".35" stopColor="#b9ffff" />
+            <stop offset="1" stopColor="#23bddd" />
           </radialGradient>
 
-          <linearGradient id="purpleCrystal" x1="0" y1="0" x2="1" y2="1">
-            <stop stopColor="#e8c5ff" />
-            <stop offset=".5" stopColor="#a46bff" />
-            <stop offset="1" stopColor="#5235ad" />
-          </linearGradient>
+          <radialGradient id="labLight">
+            <stop stopColor="#c6ffff" stopOpacity=".5" />
+            <stop offset="1" stopColor="#42d9f0" stopOpacity="0" />
+          </radialGradient>
 
-          <linearGradient id="greenCrystal" x1="0" y1="0" x2="1" y2="1">
-            <stop stopColor="#d3ffb5" />
-            <stop offset=".5" stopColor="#5bdc98" />
-            <stop offset="1" stopColor="#147d68" />
-          </linearGradient>
-
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="7" result="blur" />
+          <filter id="labGlow">
+            <feGaussianBlur stdDeviation="6" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
 
-          <filter id="shadow">
-            <feGaussianBlur stdDeviation="8" />
+          <filter id="labSoftShadow">
+            <feGaussianBlur stdDeviation="9" />
           </filter>
+
+          {/* HÁMSTER INGENIERO */}
+          <g id="labHamster">
+            {/* Sombra */}
+            <ellipse cx="0" cy="130" rx="42" ry="8" fill="#061827" opacity=".3" />
+
+            {/* Orejas */}
+            <circle cx="-23" cy="28" r="16" fill="#d99c77" />
+            <circle cx="23" cy="28" r="16" fill="#d99c77" />
+            <circle cx="-23" cy="28" r="9" fill="#f5c5bc" />
+            <circle cx="23" cy="28" r="9" fill="#f5c5bc" />
+
+            {/* Cuerpo */}
+            <ellipse cx="0" cy="96" rx="37" ry="38" fill="#d99e76" />
+            <ellipse cx="0" cy="102" rx="29" ry="30" fill="#fff1df" />
+
+            {/* Bata */}
+            <path d="M-29 78 Q-42 91 -36 125 Q0 140 36 125 L29 78 Q0 64 -29 78Z"
+              fill="#f7fcff" stroke="#d3e9f1" strokeWidth="2" />
+            <path d="M-10 75 L0 94 L10 75 L6 116 L-6 116Z"
+              fill="#d8f0f6" />
+            <path d="M-10 76 L0 94 L10 76" fill="none" stroke="#b5dce9" strokeWidth="2" />
+
+            {/* Cabeza */}
+            <ellipse cx="0" cy="55" rx="37" ry="35" fill="#d99e76" />
+            <ellipse cx="0" cy="65" rx="29" ry="22" fill="#fff0dc" />
+
+            {/* Mejillas */}
+            <ellipse cx="-21" cy="65" rx="10" ry="8" fill="#f4b9b2" opacity=".8" />
+            <ellipse cx="21" cy="65" rx="10" ry="8" fill="#f4b9b2" opacity=".8" />
+
+            {/* Ojos */}
+            <ellipse cx="-12" cy="48" rx="5.5" ry="7" fill="#243449" />
+            <ellipse cx="12" cy="48" rx="5.5" ry="7" fill="#243449" />
+            <circle cx="-14" cy="45" r="2" fill="white" />
+            <circle cx="10" cy="45" r="2" fill="white" />
+
+            {/* Nariz y boca */}
+            <ellipse cx="0" cy="62" rx="5" ry="3.5" fill="#bd777c" />
+            <path d="M0 66 Q-5 73 -10 69 M0 66 Q5 73 10 69"
+              fill="none" stroke="#a86c68" strokeWidth="1.5" strokeLinecap="round" />
+
+            {/* Casco */}
+            <path d="M-30 37 Q-28 5 0 7 Q28 5 30 37 Q0 29 -30 37Z"
+              fill="#54cce9" stroke="#d9faff" strokeWidth="2" />
+            <path d="M-35 36 Q0 26 35 36 L31 43 Q0 36 -31 43Z"
+              fill="#249bc8" />
+            <path d="M-13 17 Q0 11 13 17" fill="none" stroke="#d9ffff" strokeWidth="2" opacity=".8" />
+
+            {/* Brazos y manos */}
+            <path d="M-28 87 Q-43 88 -40 105" fill="none" stroke="#f6e6d7" strokeWidth="11" strokeLinecap="round" />
+            <path d="M28 87 Q43 88 40 105" fill="none" stroke="#f6e6d7" strokeWidth="11" strokeLinecap="round" />
+            <circle cx="-40" cy="106" r="7" fill="#d99e76" />
+            <circle cx="40" cy="106" r="7" fill="#d99e76" />
+
+            {/* Botones de bata */}
+            <circle cx="0" cy="105" r="2" fill="#7ab6cb" />
+            <circle cx="0" cy="115" r="2" fill="#7ab6cb" />
+          </g>
         </defs>
 
-        {/* PAREDES DEL LABORATORIO */}
-        <rect width="900" height="510" fill="url(#wall)" />
+        {/* AMBIENTE */}
+        <rect width="900" height="510" fill="url(#labWall)" />
 
-        {/* Paneles arquitectónicos */}
-        <path d="M0 0 H900 V55 H0Z" fill="#183950" />
-        <path d="M0 58 H900" stroke="#77b3c8" strokeWidth="2" opacity=".35" />
+        <circle cx="450" cy="180" r="300" fill="url(#labLight)" />
 
-        {Array.from({ length: 9 }, (_, i) => (
+        {/* VENTANA PANORÁMICA */}
+        <rect x="175" y="42" width="550" height="175" rx="24"
+          fill="#183d5d" stroke="#c0eff7" strokeWidth="5" />
+
+        <rect x="186" y="53" width="528" height="153" rx="17"
+          fill="#173b64" />
+
+        <circle cx="620" cy="98" r="52" fill="#8eb8d2" opacity=".2" />
+        <circle cx="620" cy="98" r="34" fill="#c1eaff" opacity=".12" />
+
+        {Array.from({ length: 34 }, (_, i) => (
+          <circle
+            key={i}
+            cx={(i * 83 + 31) % 520 + 190}
+            cy={(i * 47 + 17) % 140 + 58}
+            r={i % 3 === 0 ? 2 : 1}
+            fill="#e5ffff"
+            opacity=".8"
+          />
+        ))}
+
+        {/* PANELES LATERALES */}
+        {[25, 770].map((x, i) => (
           <g key={i}>
-            <rect
-              x={i * 110 + 10}
-              y="75"
-              width="94"
-              height="170"
-              rx="9"
-              fill="#10263c"
-              stroke="#507c94"
-              strokeWidth="3"
-            />
-            <path
-              d={`M${i * 110 + 25} 90 V225`}
-              stroke="#81b5c9"
-              opacity=".12"
-              strokeWidth="3"
-            />
+            <rect x={x} y="90" width="105" height="155" rx="18"
+              fill="#315c79" stroke="#a6d7e8" strokeWidth="3" />
+            <rect x={x + 10} y="102" width="85" height="90" rx="12"
+              fill="#102e49" stroke="#69cfe3" strokeWidth="2" />
+            <rect x={x + 22} y="120" width="60" height="7" rx="3" fill="#6be6f1" />
+            <rect x={x + 22} y="138" width="45" height="5" rx="2" fill="#8cb9ce" />
+            <rect x={x + 22} y="151" width="55" height="5" rx="2" fill="#8cb9ce" />
+            <circle cx={x + 52} cy="215" r="9" fill="#7deaf1" filter="url(#labGlow)" />
           </g>
         ))}
 
-        {/* VENTANA CENTRAL */}
-        <rect x="285" y="76" width="330" height="140" rx="18"
-          fill="#071a30" stroke="#82d9e9" strokeWidth="5" />
+        {/* TUBERÍAS */}
+        <path d="M0 255 H180 Q200 255 200 235 V215"
+          fill="none" stroke="#d5f4fa" strokeWidth="17" opacity=".8" />
+        <path d="M0 255 H180 Q200 255 200 235 V215"
+          fill="none" stroke="#76b3ce" strokeWidth="9" />
 
-        <rect x="295" y="86" width="310" height="120" rx="12"
-          fill="#142f53" />
+        <path d="M900 255 H720 Q700 255 700 235 V215"
+          fill="none" stroke="#d5f4fa" strokeWidth="17" opacity=".8" />
+        <path d="M900 255 H720 Q700 255 700 235 V215"
+          fill="none" stroke="#76b3ce" strokeWidth="9" />
 
-        {/* Espacio exterior */}
-        <circle cx="430" cy="132" r="53" fill="#435a92" opacity=".45" />
-        <circle cx="430" cy="132" r="38" fill="#7184c2" opacity=".25" />
-        <circle cx="430" cy="132" r="4" fill="white" />
+        {/* REACTOR CENTRAL */}
+        <ellipse cx="450" cy="418" rx="175" ry="28"
+          fill="#061726" opacity=".35" filter="url(#labSoftShadow)" />
 
-        {[[335,110],[510,115],[550,175],[370,180],[575,110]].map(([x,y],i) => (
-          <circle key={i} cx={x} cy={y} r="2.5" fill="#d6ffff" />
+        <rect x="315" y="350" width="270" height="75" rx="25"
+          fill="url(#labMetal)" stroke="#e0faff" strokeWidth="4" />
+
+        <rect x="330" y="362" width="240" height="48" rx="17"
+          fill="#214965" stroke="#78c9de" strokeWidth="3" />
+
+        <rect x="355" y="382" width="190" height="9" rx="4"
+          fill="url(#labBlue)" filter="url(#labGlow)" />
+
+        <rect x="370" y="120" width="160" height="245" rx="75"
+          fill="url(#labGlass)" stroke="#d7ffff" strokeWidth="5" />
+
+        <rect x="385" y="135" width="130" height="210" rx="62"
+          fill="#32c9e5" opacity=".10" />
+
+        <ellipse cx="450" cy="135" rx="80" ry="17"
+          fill="url(#labMetal)" stroke="#e8ffff" strokeWidth="4" />
+
+        <ellipse cx="450" cy="345" rx="80" ry="17"
+          fill="url(#labMetal)" stroke="#e8ffff" strokeWidth="4" />
+
+        <circle cx="450" cy="235" r="75"
+          fill="#62eaff" opacity=".16" filter="url(#labGlow)" />
+
+        <circle cx="450" cy="235" r="49"
+          fill="url(#labCore)" stroke="#e5ffff" strokeWidth="4" />
+
+        <circle cx="450" cy="235" r="35"
+          fill="url(#labGold)" stroke="#fff1bb" strokeWidth="3" />
+
+        <text x="450" y="250" textAnchor="middle"
+          fontSize="42" fontWeight="bold" fill="#fff8d5">₿</text>
+
+        <ellipse cx="450" cy="235" rx="67" ry="15"
+          fill="none" stroke="#fff3b6" strokeWidth="4" opacity=".8" />
+
+        {/* DETALLES DEL REACTOR */}
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <circle key={i}
+            cx={450 + Math.cos(i * Math.PI / 3) * 94}
+            cy={235 + Math.sin(i * Math.PI / 3) * 94}
+            r="4" fill="#b9ffff" />
         ))}
 
-        {/* CONDUCTOS SUPERIORES */}
-        <path d="M30 40 V270 Q30 290 50 290 H165"
-          fill="none" stroke="#a5c8d6" strokeWidth="13" />
-        <path d="M30 40 V270 Q30 290 50 290 H165"
-          fill="none" stroke="#527d97" strokeWidth="8" />
-
-        <path d="M870 40 V270 Q870 290 850 290 H735"
-          fill="none" stroke="#a5c8d6" strokeWidth="13" />
-        <path d="M870 40 V270 Q870 290 850 290 H735"
-          fill="none" stroke="#527d97" strokeWidth="8" />
-
-        {/* LUCES */}
-        {[100,250,450,650,800].map((x,i) => (
-          <g key={i}>
-            <rect x={x-16} y="18" width="32" height="7" rx="3" fill="#49e5ee" />
-            <ellipse cx={x} cy="28" rx="25" ry="12" fill="#45e8f1" opacity=".15" filter="url(#glow)" />
-          </g>
-        ))}
-
-        {/* MÁQUINA LATERAL IZQUIERDA */}
+        {/* MÁQUINAS LATERALES */}
         <g>
-          <ellipse cx="150" cy="380" rx="100" ry="24" fill="#061727" opacity=".6" />
-
-          <rect x="55" y="265" width="190" height="112" rx="20"
-            fill="#244e68" stroke="#79b4ca" strokeWidth="4" />
-
-          <rect x="68" y="280" width="164" height="82" rx="13"
-            fill="#102c43" stroke="#497e99" strokeWidth="3" />
-
-          <circle cx="110" cy="322" r="27"
-            fill="#0b1b2b" stroke="#e0b55c" strokeWidth="7" />
-
-          <circle cx="110" cy="322" r="17"
-            fill="url(#core)" />
-
-          <rect x="155" y="295" width="56" height="10" rx="4" fill="#4bdce8" />
-          <rect x="155" y="315" width="42" height="7" rx="3" fill="#7eacc0" />
-          <rect x="155" y="331" width="52" height="7" rx="3" fill="#7eacc0" />
-
-          <rect x="78" y="370" width="144" height="18" rx="6"
-            fill="url(#metal)" />
-
-          <circle cx="90" cy="385" r="5" fill="#f7c66a" />
-          <circle cx="210" cy="385" r="5" fill="#f7c66a" />
+          <rect x="65" y="320" width="160" height="92" rx="22"
+            fill="url(#labMetal)" stroke="#d8f7ff" strokeWidth="3" />
+          <rect x="80" y="333" width="130" height="62" rx="15"
+            fill="#183c58" />
+          <circle cx="111" cy="364" r="19" fill="#0b253e"
+            stroke="#7deaf2" strokeWidth="4" />
+          <circle cx="111" cy="364" r="10" fill="url(#labCore)" />
+          <rect x="145" y="347" width="47" height="7" rx="3" fill="#7deaf2" />
+          <rect x="145" y="363" width="35" height="5" rx="2" fill="#a7c9d9" />
+          <rect x="145" y="376" width="42" height="5" rx="2" fill="#a7c9d9" />
         </g>
 
-        {/* MÁQUINA LATERAL DERECHA */}
         <g>
-          <ellipse cx="750" cy="380" rx="105" ry="24" fill="#061727" opacity=".6" />
-
-          <rect x="650" y="265" width="195" height="112" rx="20"
-            fill="#244e68" stroke="#79b4ca" strokeWidth="4" />
-
-          <rect x="664" y="279" width="167" height="84" rx="13"
-            fill="#102c43" stroke="#497e99" strokeWidth="3" />
-
-          <rect x="683" y="294" width="65" height="55" rx="8"
-            fill="#071b2b" stroke="#4b94a8" strokeWidth="3" />
-
-          <path d="M692 337 L708 309 L722 330 L736 302"
-            fill="none" stroke="#4ce6d9" strokeWidth="4" />
-
-          <rect x="765" y="294" width="49" height="10" rx="4" fill="#e9b85d" />
-          <rect x="765" y="314" width="38" height="7" rx="3" fill="#7eacc0" />
-          <rect x="765" y="330" width="48" height="7" rx="3" fill="#7eacc0" />
-
-          <rect x="675" y="370" width="145" height="18" rx="6"
-            fill="url(#metal)" />
+          <rect x="675" y="320" width="160" height="92" rx="22"
+            fill="url(#labMetal)" stroke="#d8f7ff" strokeWidth="3" />
+          <rect x="690" y="333" width="130" height="62" rx="15"
+            fill="#183c58" />
+          <circle cx="721" cy="364" r="19" fill="#0b253e"
+            stroke="#7deaf2" strokeWidth="4" />
+          <circle cx="721" cy="364" r="10" fill="url(#labCore)" />
+          <rect x="755" y="347" width="47" height="7" rx="3" fill="#7deaf2" />
+          <rect x="755" y="363" width="35" height="5" rx="2" fill="#a7c9d9" />
+          <rect x="755" y="376" width="42" height="5" rx="2" fill="#a7c9d9" />
         </g>
 
-        {/* CRISTALES IZQUIERDOS */}
-        <g filter="url(#glow)">
-          <path d="M255 370 L265 325 L280 305 L294 325 L306 370Z"
-            fill="url(#purpleCrystal)" stroke="#e4c5ff" strokeWidth="2" />
-          <path d="M265 325 L280 305 L280 360 L255 370Z"
-            fill="#e8c5ff" opacity=".45" />
+        {/* CINTA TRANSPORTADORA */}
+        <path d="M520 390 H870" stroke="#244d6b" strokeWidth="28" strokeLinecap="round" />
+        <path d="M520 379 H870" stroke="#d0f4fa" strokeWidth="5" opacity=".8" />
+        <path d="M520 401 H870" stroke="#5e9bb8" strokeWidth="5" />
 
-          <path d="M300 370 L310 337 L324 322 L337 339 L344 370Z"
-            fill="url(#greenCrystal)" stroke="#a8ffd6" strokeWidth="2" />
-        </g>
+        {[550, 610, 670, 730, 790, 850].map((x, i) => (
+          <circle key={i} cx={x} cy="390" r="8"
+            fill="url(#labMetal)" stroke="#d9faff" strokeWidth="2" />
+        ))}
 
-        {/* CRISTALES DERECHOS */}
-        <g filter="url(#glow)">
-          <path d="M595 370 L610 310 L626 292 L642 316 L650 370Z"
-            fill="url(#greenCrystal)" stroke="#b3ffda" strokeWidth="2" />
-
-          <path d="M625 370 L643 335 L660 315 L676 342 L683 370Z"
-            fill="url(#purpleCrystal)" stroke="#dfc5ff" strokeWidth="2" />
-        </g>
-
-        {/* REACTOR CENTRAL - SOMBRA */}
-        <ellipse cx="450" cy="420" rx="170" ry="35"
-          fill="#020b16" opacity=".7" filter="url(#shadow)" />
-
-        {/* BASE DEL REACTOR */}
-        <path d="M340 385 H560 L585 430 H315Z"
-          fill="#254c65" stroke="#8bc4d3" strokeWidth="4" />
-
-        <path d="M360 398 H540 L550 418 H350Z"
-          fill="#10283c" />
-
-        <rect x="372" y="421" width="156" height="17" rx="7"
-          fill="url(#goldMetal)" />
-
-        <rect x="390" y="426" width="120" height="5" rx="2"
-          fill="#fff1b8" opacity=".8" />
-
-        {/* SOPORTES DEL REACTOR */}
-        {[345,540].map((x,i) => (
+        {/* MONEDAS */}
+        {[570, 630, 690, 750, 810].map((x, i) => (
           <g key={i}>
-            <rect x={x} y="310" width="24" height="88" rx="8"
-              fill="url(#metal)" stroke="#8bb6c9" strokeWidth="2" />
-            <rect x={x+5} y="325" width="14" height="52" rx="4"
-              fill="#35d8e8" opacity=".7" />
+            <ellipse cx={x} cy={365 - (i % 2) * 9} rx="15" ry="5"
+              fill="#a56c24" />
+            <ellipse cx={x} cy={360 - (i % 2) * 9} rx="15" ry="6"
+              fill="url(#labGold)" stroke="#fff1b4" strokeWidth="2" />
+            <text x={x} y={364 - (i % 2) * 9} textAnchor="middle"
+              fontSize="10" fontWeight="bold" fill="#a66a20">₿</text>
           </g>
         ))}
 
-        {/* REACTOR PRINCIPAL */}
-        <g>
-          <ellipse cx="450" cy="300" rx="117" ry="24"
-            fill="#071827" stroke="#b0d5dc" strokeWidth="5" />
-
-          <path d="M333 300 V370 Q333 396 450 396 Q567 396 567 370 V300Z"
-            fill="url(#metal)" stroke="#b5d9e0" strokeWidth="5" />
-
-          <path d="M345 308 V367 Q345 383 450 383 Q555 383 555 367 V308Z"
-            fill="#18364d" stroke="#6b9aaf" strokeWidth="3" />
-
-          <ellipse cx="450" cy="310" rx="103" ry="22"
-            fill="#456d86" stroke="#a6d3dd" strokeWidth="5" />
-
-          <ellipse cx="450" cy="308" rx="78" ry="15"
-            fill="#071b30" stroke="#39d8e8" strokeWidth="3" />
-
-          {/* Núcleo energético */}
-          <circle cx="450" cy="296" r="55"
-            fill="#22d5e8" opacity=".2" filter="url(#glow)" />
-
-          <circle cx="450" cy="296" r="44"
-            fill="#0a263e" stroke="#4be4ef" strokeWidth="5" />
-
-          <circle cx="450" cy="296" r="34"
-            fill="url(#core)" filter="url(#glow)" />
-
-          <path d="M450 264 L465 292 L450 323 L435 292Z"
-            fill="#e5ffff" opacity=".75" />
-
-          {/* Detalles de reactor */}
-          {[0,1,2,3,4,5].map((i) => (
-            <circle
-              key={i}
-              cx={450 + Math.cos(i * Math.PI / 3) * 91}
-              cy={309 + Math.sin(i * Math.PI / 3) * 15}
-              r="5"
-              fill="#ffe39a"
-              stroke="#9e6b28"
-              strokeWidth="2"
-            />
-          ))}
-
-          {/* Indicadores frontales */}
-          <rect x="376" y="352" width="148" height="21" rx="7"
-            fill="#0a1b2d" stroke="#6c9db0" strokeWidth="2" />
-
-          <rect x="389" y="359" width="35" height="7" rx="3" fill="#43e1e8" />
-          <rect x="431" y="359" width="35" height="7" rx="3" fill="#5ee3a3" />
-          <rect x="473" y="359" width="35" height="7" rx="3" fill="#e9bd63" />
-
+        {/* HÁMSTER 1: SUPERVISOR */}
+        <g transform="translate(270 225) scale(.88)">
+          <use href="#labHamster" />
+          <rect x="-24" y="90" width="48" height="27" rx="5"
+            fill="#173d5c" stroke="#a6eff5" strokeWidth="2" />
+          <rect x="-19" y="95" width="38" height="16" rx="3"
+            fill="#4bd8ee" />
+          <path d="M-15 106 L-5 100 L2 104 L12 98"
+            fill="none" stroke="#ffffff" strokeWidth="2" />
         </g>
 
-        {/* PLATAFORMA INFERIOR */}
-        <path d="M0 440 H900 V510 H0Z" fill="url(#floor)" />
-        <path d="M0 440 H900" stroke="#65b4c9" strokeWidth="4" opacity=".5" />
+        {/* HÁMSTER 2: OPERARIO */}
+        <g transform="translate(155 285) scale(.88)">
+          <use href="#labHamster" />
+          <path d="M-37 112 Q-55 108 -58 90"
+            fill="none" stroke="#d99e76" strokeWidth="8" strokeLinecap="round" />
+        </g>
 
-        <path d="M40 460 H860" stroke="#4a829a" strokeWidth="2" opacity=".4" />
+        {/* HÁMSTER 3: TRANSPORTISTA */}
+        <g transform="translate(745 260) scale(.85)">
+          <use href="#labHamster" />
+          <path d="M-30 92 L-49 108" stroke="#d99e76"
+            strokeWidth="8" strokeLinecap="round" />
+        </g>
 
-        {/* PANELES DEL SUELO */}
-        {[100,300,500,700].map((x,i) => (
-          <g key={i}>
-            <path d={`M${x} 455 L${x+35} 455 L${x+60} 510 L${x-25} 510Z`}
-              fill="#24475d" opacity=".65" />
-            <path d={`M${x} 470 H${x+20}`}
-              stroke="#4bdde8" strokeWidth="3" />
-          </g>
+        {/* CRISTALES DECORATIVOS */}
+        <g>
+          <path d="M20 420 L35 365 L50 420Z"
+            fill="#8deaff" stroke="#d9ffff" strokeWidth="2" />
+          <path d="M45 420 L62 382 L80 420Z"
+            fill="#4bc9ee" stroke="#c8faff" strokeWidth="2" />
+          <path d="M840 420 L860 360 L880 420Z"
+            fill="#8deaff" stroke="#d9ffff" strokeWidth="2" />
+        </g>
+
+        {/* SUELO */}
+        <rect x="0" y="430" width="900" height="80" fill="url(#labFloor)" />
+        <path d="M0 430 H900" stroke="#c8faff" strokeWidth="3" opacity=".65" />
+
+        {[100, 300, 500, 700].map((x, i) => (
+          <path key={i} d={`M${x} 450 L${x + 40} 450 L${x + 70} 510`}
+            stroke="#75cde1" strokeWidth="2" opacity=".25" fill="none" />
         ))}
 
-        {/* DETALLES LUMINOSOS */}
-        <circle cx="450" cy="450" r="5" fill="#f7d17a" />
-        <circle cx="450" cy="450" r="16" stroke="#e4b65b" fill="none" opacity=".5" />
-
+        {/* IDENTIFICACIÓN */}
+        <rect x="350" y="446" width="200" height="34" rx="12"
+          fill="#123450" stroke="#9ceefa" strokeWidth="2" />
+        <text x="450" y="468" textAnchor="middle"
+          fontSize="14" fontWeight="bold" fill="#c8faff">
+          LABCOIN MINING
+        </text>
       </svg>
 
       {/* ETIQUETA SUPERIOR */}
       <div className="absolute top-3 left-3 md:top-5 md:left-5">
-        <div className="px-3 py-2 rounded-xl bg-[#071a2d]/85 border border-cyan-300/30 backdrop-blur-md">
-          <p className="text-[8px] md:text-[10px] font-black text-cyan-300 tracking-[.2em]">
-            MINING CHAMBER
+        <div className="px-3 py-2 rounded-xl bg-[#102d45]/85 border border-cyan-100/40 backdrop-blur-md shadow-lg">
+          <p className="text-[8px] md:text-[10px] font-black text-cyan-100 tracking-[.2em]">
+            HAMSTER MINING LAB
           </p>
-          <p className="text-[8px] text-slate-300 mt-1">
+          <p className="text-[8px] text-slate-200 mt-1">
             CORE REACTOR 01
           </p>
         </div>
@@ -359,14 +382,13 @@ function MiningLaboratory() {
 
       {/* ESTADO */}
       <div className="absolute top-3 right-3 md:top-5 md:right-5">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#071a2d]/85 border border-emerald-400/30">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-[8px] md:text-[10px] font-bold text-emerald-300">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#102d45]/85 border border-emerald-200/40 shadow-lg">
+          <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+          <span className="text-[8px] md:text-[10px] font-bold text-emerald-100">
             REACTOR ONLINE
           </span>
         </div>
       </div>
-
     </div>
   );
 }
