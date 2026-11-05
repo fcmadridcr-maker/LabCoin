@@ -22,11 +22,11 @@ import {
 // LABCOIN FAUCET
 // Recompensa: 0.0005 USDT
 // Cooldown: 5 minutos
-// Límite diario: 20 claims
+// Limite diario: 20 claims
 // Reinicio: 00:00 UTC
 //
 // DEMO FRONTEND.
-// La validación real se implementará en Supabase.
+// La validacion real se implementara en Supabase.
 // ======================================================
 
 const CLAIM_REWARD = '0.0005';
@@ -107,7 +107,6 @@ export default function LabCoinApp() {
     setNextClaimAt(Date.now() + COOLDOWN_MS);
   };
 
-  // Estado del sistema
   const claimStatus = dailyLimitReached
     ? 'DAILY LIMIT REACHED'
     : cooldownRemaining > 0
@@ -233,90 +232,81 @@ export default function LabCoinApp() {
               </div>
             </div>
 
-            {/* ==================================================
-                FAUCET CLAIM STATION
-            ================================================== */}
-
+            {/* FAUCET CLAIM STATION */}
             {activeTab === 'claim' ? (
 
-              <div className="p-4 md:p-7">
+              <div className="p-3 md:p-5">
 
-                {/* PANEL PRINCIPAL */}
-                <div className="relative max-w-3xl mx-auto overflow-hidden rounded-[30px] border border-cyan-300/20 bg-[#0b1c2d] shadow-[0_15px_55px_rgba(0,0,0,.35)]">
+                <div className="relative max-w-2xl mx-auto overflow-hidden rounded-[24px] border border-cyan-300/20 bg-[#0b1c2d] shadow-[0_12px_35px_rgba(0,0,0,.30)]">
 
                   {/* EFECTOS DE LUZ */}
                   <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full bg-cyan-400/10 blur-[90px]" />
-                    <div className="absolute bottom-0 left-0 w-52 h-52 rounded-full bg-blue-500/10 blur-[80px]" />
-                    <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-cyan-300/5 blur-[70px]" />
+                    <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-cyan-400/10 blur-[75px]" />
+                    <div className="absolute bottom-0 right-0 w-40 h-40 rounded-full bg-blue-500/10 blur-[60px]" />
                   </div>
 
-                  <div className="relative z-10 p-5 sm:p-8 md:p-10">
+                  <div className="relative z-10 p-4 sm:p-5 md:p-6">
 
-                    {/* ENCABEZADO DE ESTACIÓN */}
-                    <div className="flex items-center justify-between gap-3 mb-8">
+                    {/* ENCABEZADO */}
+                    <div className="flex items-center justify-between mb-4">
 
                       <div>
                         <div className="flex items-center gap-2">
-                          <Sparkles size={15} className="text-cyan-300" />
-                          <p className="text-[9px] sm:text-[10px] text-cyan-300 font-black tracking-[.25em]">
+                          <Sparkles size={13} className="text-cyan-300" />
+                          <p className="text-[8px] sm:text-[9px] text-cyan-300 font-black tracking-[.22em]">
                             LABCOIN REWARD STATION
                           </p>
                         </div>
 
-                        <h3 className="text-xl sm:text-2xl font-black mt-2">
+                        <h3 className="text-lg sm:text-xl font-black mt-1">
                           Claim Station
                         </h3>
                       </div>
 
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-emerald-400/10 border border-emerald-300/20">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                        <span className="text-[8px] sm:text-[9px] text-emerald-300 font-black tracking-wider">
+                      <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-emerald-400/10 border border-emerald-300/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-[8px] text-emerald-300 font-black tracking-wider">
                           ONLINE
                         </span>
                       </div>
                     </div>
 
                     {/* RECOMPENSA */}
-                    <div className="relative rounded-[25px] border border-cyan-300/20 bg-gradient-to-br from-[#163d56] via-[#102d44] to-[#0c2035] p-6 sm:p-9 text-center overflow-hidden">
+                    <div className="relative rounded-[20px] border border-cyan-300/20 bg-gradient-to-br from-[#163d56] via-[#102d44] to-[#0c2035] px-4 py-5 text-center overflow-hidden">
 
                       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,.12),transparent_70%)] pointer-events-none" />
 
                       <div className="relative">
 
-                        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-cyan-300/20 to-blue-500/20 border border-cyan-200/30 flex items-center justify-center shadow-[0_0_30px_rgba(34,211,238,.12)]">
-                          <Coins size={27} className="text-cyan-300" />
+                        <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-cyan-300/10 border border-cyan-200/20 flex items-center justify-center">
+                          <Coins size={21} className="text-cyan-300" />
                         </div>
 
-                        <p className="text-[9px] sm:text-[10px] uppercase tracking-[.3em] text-slate-300 font-bold">
+                        <p className="text-[8px] uppercase tracking-[.25em] text-slate-300 font-bold">
                           Your available reward
                         </p>
 
-                        <div className="flex items-baseline justify-center gap-2 mt-3">
-                          <span className="text-4xl sm:text-6xl md:text-7xl font-black font-mono tracking-tight text-white drop-shadow-[0_0_25px_rgba(34,211,238,.25)]">
+                        <div className="flex items-baseline justify-center gap-2 mt-2">
+                          <span className="text-4xl sm:text-5xl font-black font-mono tracking-tight text-white drop-shadow-[0_0_20px_rgba(34,211,238,.25)]">
                             {CLAIM_REWARD}
                           </span>
-                          <span className="text-lg sm:text-2xl font-black text-cyan-300">
+                          <span className="text-base sm:text-xl font-black text-cyan-300">
                             USDT
                           </span>
                         </div>
-
-                        <p className="text-[9px] text-slate-400 mt-3 tracking-widest">
-                          FIXED FAUCET REWARD
-                        </p>
 
                       </div>
                     </div>
 
                     {/* BOTÓN CLAIM */}
-                    <div className="max-w-lg mx-auto mt-6">
+                    <div className="max-w-md mx-auto mt-4">
 
                       <button
                         onClick={handleClaim}
                         disabled={!canClaim}
-                        className={`group relative w-full overflow-hidden rounded-2xl border-b-[5px] py-5 px-5 transition-all duration-200 ${
+                        className={`group relative w-full overflow-hidden rounded-xl border-b-[4px] py-3.5 px-4 transition-all duration-200 ${
                           canClaim
-                            ? 'bg-gradient-to-b from-[#70f4f4] via-[#20c5df] to-[#0879b9] border-[#07517e] shadow-[0_8px_30px_rgba(34,211,238,.25)] hover:brightness-110 active:translate-y-1 active:border-b-0 cursor-pointer'
+                            ? 'bg-gradient-to-b from-[#70f4f4] via-[#20c5df] to-[#0879b9] border-[#07517e] shadow-[0_6px_22px_rgba(34,211,238,.22)] hover:brightness-110 active:translate-y-1 active:border-b-0 cursor-pointer'
                             : 'bg-gradient-to-b from-slate-600 to-slate-700 border-slate-800 opacity-80 cursor-not-allowed'
                         }`}
                       >
@@ -329,23 +319,23 @@ export default function LabCoinApp() {
 
                           {canClaim ? (
                             <>
-                              <Zap size={23} className="text-[#07324b]" />
-                              <span className="text-sm sm:text-base font-black text-[#06263d] tracking-[.15em]">
+                              <Zap size={19} className="text-[#07324b]" />
+                              <span className="text-xs sm:text-sm font-black text-[#06263d] tracking-[.13em]">
                                 CLAIM {CLAIM_REWARD} USDT
                               </span>
-                              <ArrowUpRight size={21} className="text-[#07324b]" />
+                              <ArrowUpRight size={18} className="text-[#07324b]" />
                             </>
                           ) : dailyLimitReached ? (
                             <>
-                              <Check size={22} />
-                              <span className="text-sm font-black tracking-widest">
+                              <Check size={19} />
+                              <span className="text-xs font-black tracking-widest">
                                 DAILY LIMIT REACHED
                               </span>
                             </>
                           ) : (
                             <>
-                              <Timer size={22} />
-                              <span className="text-sm font-black tracking-widest">
+                              <Timer size={19} />
+                              <span className="text-xs font-black tracking-widest">
                                 WAIT {formatCountdown(cooldownRemaining)}
                               </span>
                             </>
@@ -354,62 +344,44 @@ export default function LabCoinApp() {
                         </span>
                       </button>
 
-                      {/* ESTADO DEL CLAIM */}
-                      <div className="flex items-center justify-center gap-2 mt-4">
-
+                      {/* ESTADO */}
+                      <div className="flex items-center justify-center gap-2 mt-2.5">
                         {canClaim ? (
-                          <ShieldCheck size={14} className="text-emerald-400" />
-                        ) : dailyLimitReached ? (
-                          <Check size={14} className="text-amber-300" />
+                          <ShieldCheck size={12} className="text-emerald-400" />
                         ) : (
-                          <Timer size={14} className="text-amber-300" />
+                          <Timer size={12} className="text-amber-300" />
                         )}
 
-                        <p className={`text-[9px] sm:text-[10px] font-black tracking-[.18em] ${
-                          canClaim
-                            ? 'text-emerald-300'
-                            : 'text-amber-300'
+                        <p className={`text-[8px] font-black tracking-[.16em] ${
+                          canClaim ? 'text-emerald-300' : 'text-amber-300'
                         }`}>
                           {claimStatus}
                         </p>
-
                       </div>
+                    </div>
 
-                      {/* TEMPORIZADOR */}
-                      <div className="mt-5 rounded-2xl bg-[#071725]/80 border border-white/5 p-4">
+                    {/* TEMPORIZADOR Y CONTADOR */}
+                    <div className="grid grid-cols-2 gap-3 mt-4">
 
-                        <div className="flex items-center justify-between gap-3">
+                      {/* NEXT CLAIM */}
+                      <div className="rounded-xl bg-[#071725]/80 border border-white/5 p-3">
 
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-cyan-400/10 border border-cyan-300/10 flex items-center justify-center">
-                              <Timer size={19} className="text-cyan-300" />
-                            </div>
-
-                            <div>
-                              <p className="text-[9px] text-slate-400 uppercase font-bold tracking-wider">
-                                Next claim
-                              </p>
-                              <p className="text-xs text-white font-bold mt-1">
-                                {dailyLimitReached
-                                  ? 'Daily limit completed'
-                                  : cooldownRemaining > 0
-                                    ? 'Recharge in progress'
-                                    : 'Available now'}
-                              </p>
-                            </div>
-                          </div>
-
-                          <span className="text-xl sm:text-2xl font-mono font-black text-cyan-300 tabular-nums">
-                            {dailyLimitReached
-                              ? '--:--'
-                              : cooldownRemaining > 0
-                                ? formatCountdown(cooldownRemaining)
-                                : '00:00'}
-                          </span>
-
+                        <div className="flex items-center gap-2">
+                          <Timer size={14} className="text-cyan-300" />
+                          <p className="text-[8px] text-slate-400 uppercase font-bold tracking-wider">
+                            Next claim
+                          </p>
                         </div>
 
-                        <div className="mt-4 h-1.5 rounded-full bg-[#1b3448] overflow-hidden">
+                        <p className="text-xl font-mono font-black text-cyan-300 mt-2 tabular-nums">
+                          {dailyLimitReached
+                            ? '--:--'
+                            : cooldownRemaining > 0
+                              ? formatCountdown(cooldownRemaining)
+                              : '00:00'}
+                        </p>
+
+                        <div className="mt-2 h-1 rounded-full bg-[#1b3448] overflow-hidden">
                           <div
                             className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-blue-400 transition-all duration-1000"
                             style={{
@@ -419,109 +391,69 @@ export default function LabCoinApp() {
                             }}
                           />
                         </div>
-
                       </div>
-                    </div>
 
-                    {/* PROGRESO DIARIO */}
-                    <div className="mt-7 rounded-2xl bg-[#10283d]/90 border border-white/10 p-4 sm:p-5">
+                      {/* DAILY CLAIMS */}
+                      <div className="rounded-xl bg-[#071725]/80 border border-white/5 p-3">
 
-                      <div className="flex items-center justify-between gap-3">
-
-                        <div>
-                          <p className="text-[9px] text-slate-400 uppercase tracking-[.18em] font-bold">
+                        <div className="flex items-center gap-2">
+                          <Ticket size={14} className="text-amber-300" />
+                          <p className="text-[8px] text-slate-400 uppercase font-bold tracking-wider">
                             Daily claims
                           </p>
-
-                          <div className="flex items-baseline gap-1 mt-1">
-                            <span className="text-2xl font-black text-white tabular-nums">
-                              {claimsToday}
-                            </span>
-                            <span className="text-sm text-slate-400 font-bold">
-                              / {DAILY_LIMIT}
-                            </span>
-                          </div>
                         </div>
 
-                        <div className="text-right">
-                          <p className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">
-                            Daily reward cap
-                          </p>
-                          <p className="text-base sm:text-lg font-black text-amber-300 mt-1">
-                            0.0100 USDT
-                          </p>
-                        </div>
+                        <p className="text-xl font-black text-white mt-2 tabular-nums">
+                          {claimsToday}
+                          <span className="text-sm text-slate-400">
+                            {' '}/ {DAILY_LIMIT}
+                          </span>
+                        </p>
 
-                      </div>
-
-                      {/* BARRA DE PROGRESO */}
-                      <div className="mt-4">
-
-                        <div className="flex justify-between text-[8px] text-slate-500 font-bold mb-2">
-                          <span>DAILY PROGRESS</span>
-                          <span>{Math.round(progress)}%</span>
-                        </div>
-
-                        <div className="h-2.5 rounded-full bg-[#071725] border border-white/5 overflow-hidden">
+                        <div className="mt-2 h-1 rounded-full bg-[#1b3448] overflow-hidden">
                           <div
-                            className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-300 shadow-[0_0_12px_rgba(34,211,238,.35)] transition-all duration-500"
+                            className="h-full rounded-full bg-gradient-to-r from-amber-300 to-yellow-500 transition-all duration-500"
                             style={{ width: `${progress}%` }}
                           />
                         </div>
-
-                      </div>
-
-                      {/* INDICADORES DE CLAIMS */}
-                      <div className="grid grid-cols-10 gap-1.5 mt-4">
-                        {Array.from({ length: DAILY_LIMIT }, (_, index) => (
-                          <div
-                            key={index}
-                            className={`h-1.5 rounded-full transition-all duration-300 ${
-                              index < claimsToday
-                                ? 'bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,.4)]'
-                                : 'bg-[#294257]'
-                            }`}
-                          />
-                        ))}
                       </div>
 
                     </div>
 
-                    {/* INFORMACIÓN INFERIOR */}
-                    <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-6">
+                    {/* PROGRESO DE LOS 20 CLAIMS */}
+                    <div className="grid grid-cols-10 gap-1 mt-3">
+                      {Array.from({ length: DAILY_LIMIT }, (_, index) => (
+                        <div
+                          key={index}
+                          className={`h-1 rounded-full transition-all duration-300 ${
+                            index < claimsToday
+                              ? 'bg-cyan-400 shadow-[0_0_7px_rgba(34,211,238,.4)]'
+                              : 'bg-[#294257]'
+                          }`}
+                        />
+                      ))}
+                    </div>
 
-                      <div className="flex items-center gap-2">
-                        <Timer size={12} className="text-cyan-300" />
-                        <span className="text-[8px] sm:text-[9px] text-slate-400 font-bold tracking-wider">
-                          5 MIN COOLDOWN
-                        </span>
-                      </div>
-
-                      <div className="w-1 h-1 rounded-full bg-slate-600" />
-
-                      <div className="flex items-center gap-2">
-                        <Ticket size={12} className="text-cyan-300" />
-                        <span className="text-[8px] sm:text-[9px] text-slate-400 font-bold tracking-wider">
-                          20 CLAIMS DAILY
-                        </span>
-                      </div>
-
-                      <div className="w-1 h-1 rounded-full bg-slate-600" />
-
-                      <div className="flex items-center gap-2">
-                        <ShieldCheck size={12} className="text-emerald-300" />
-                        <span className="text-[8px] sm:text-[9px] text-slate-400 font-bold tracking-wider">
-                          UTC RESET
-                        </span>
-                      </div>
-
+                    {/* INFORMACIÓN */}
+                    <div className="flex items-center justify-center gap-3 mt-4">
+                      <span className="text-[8px] text-slate-400 font-bold tracking-wider">
+                        5 MIN COOLDOWN
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-slate-600" />
+                      <span className="text-[8px] text-slate-400 font-bold tracking-wider">
+                        20 CLAIMS DAILY
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-slate-600" />
+                      <span className="text-[8px] text-slate-400 font-bold tracking-wider">
+                        UTC RESET
+                      </span>
                     </div>
 
                   </div>
                 </div>
 
                 {/* AVISO DE DEMOSTRACIÓN */}
-                <div className="max-w-3xl mx-auto mt-5 p-3 rounded-xl bg-amber-400/5 border border-amber-300/20">
+                <div className="max-w-2xl mx-auto mt-4 p-3 rounded-xl bg-amber-400/5 border border-amber-300/20">
                   <p className="text-[9px] text-amber-200 text-center leading-relaxed">
                     DEMO MODE: claims are simulated in this browser.
                     Real USDT crediting, cooldown validation and daily
