@@ -396,7 +396,7 @@ export default function LabCoinApp() {
 
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-300 to-blue-600 flex items-center justify-center shadow-[0_5px_18px_rgba(34,211,238,.3)] border border-cyan-100/50">
-              <Hammer, size={23} className="text-white" />
+              <Hammer size={23} className="text-white" />
             </div>
 
             <div>
