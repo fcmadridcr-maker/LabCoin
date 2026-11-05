@@ -10,7 +10,7 @@ import {
   ArrowUpRight,
   Check,
   X,
-  Hammer,,
+  Hammer,
   Activity,
   Settings,
   Coins,
