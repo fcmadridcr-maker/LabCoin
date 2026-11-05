@@ -1,85 +1,68 @@
 import React, { useState } from 'react';
-import { Cpu, Zap, Layers, PlaySquare, Award, Ticket, ArrowUpRight, DollarSign, CheckCircle2, ShieldAlert, Activity, Server, Database, HardDrive, Terminal } from 'lucide-react';
+import { Cpu, Zap, Layers, PlaySquare, Award, Ticket, ArrowUpRight, DollarSign, CheckCircle2, ShieldAlert, Activity, Server, Database } from 'lucide-react';
 
 export default function LabCoinApp() {
   const [activeTab, setActiveTab] = useState('claim');
   const [balance, setBalance] = useState('0.00500000');
   const [tickets, setTickets] = useState(12);
   const [ptcClaimed, setPtcClaimed] = useState(false);
+  const [bonusChecked, setBonusChecked] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-100 font-sans flex flex-col selection:bg-blue-600 selection:text-white relative overflow-hidden">
+    <div className="min-h-screen bg-[#060b19] text-slate-100 font-sans flex flex-col selection:bg-blue-600 selection:text-white relative overflow-hidden">
       
-      {/* Fondo técnico con cuadrícula y líneas de laboratorio */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e3a8a0f_1px,transparent_1px),linear-gradient(to_bottom,#1e3a8a0f_1px,transparent_1px)] bg-[size:2.5rem_2.5rem] pointer-events-none"></div>
+      {/* Fondo técnico con retícula de laboratorio estilizada */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1d4ed810_1px,transparent_1px),linear-gradient(to_bottom,#1d4ed810_1px,transparent_1px)] bg-[size:3rem_3rem] pointer-events-none"></div>
 
-      {/* RACKS DE SERVIDORES LATERALES (Izquierda) */}
-      <div className="absolute left-2 top-24 hidden xl:flex flex-col space-y-3 opacity-60 pointer-events-none z-0">
-        <div className="bg-slate-950/80 border border-blue-500/40 p-3 rounded-xl w-32 shadow-[0_0_15px_rgba(37,99,235,0.2)]">
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-[9px] font-mono text-blue-400">SRV-01</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+      {/* EFECTOS VISUALES DE LA SALA DE MINERÍA (Racks de servidores, cristales y brazos mecánicos laterales) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden hidden xl:block z-0 opacity-40">
+        {/* Rack Servidores Izquierdo */}
+        <div className="absolute left-6 top-28 w-40 bg-slate-950/90 border border-blue-500/40 rounded-2xl p-4 shadow-[0_0_25px_rgba(37,99,235,0.3)]">
+          <div className="flex justify-between items-center mb-3 border-b border-blue-500/20 pb-2">
+            <span className="text-[10px] font-mono text-cyan-400 font-bold">RACK-SRV 01</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
           </div>
-          <div className="space-y-1">
-            <div className="h-1 bg-blue-500/40 rounded w-full animate-pulse"></div>
-            <div className="h-1 bg-cyan-400/40 rounded w-3/4"></div>
-            <div className="h-1 bg-blue-600/40 rounded w-5/6"></div>
+          <div className="space-y-2">
+            <div className="h-2 bg-blue-600/40 rounded-full w-full animate-pulse"></div>
+            <div className="h-2 bg-cyan-400/40 rounded-full w-3/4"></div>
+            <div className="h-2 bg-blue-500/40 rounded-full w-5/6"></div>
+            <div className="h-2 bg-blue-700/40 rounded-full w-2/3"></div>
           </div>
-        </div>
-        <div className="bg-slate-950/80 border border-blue-500/40 p-3 rounded-xl w-32 shadow-[0_0_15px_rgba(37,99,235,0.2)]">
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-[9px] font-mono text-blue-400">SRV-02</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          </div>
-          <div className="space-y-1">
-            <div className="h-1 bg-cyan-400/40 rounded w-5/6 animate-pulse"></div>
-            <div className="h-1 bg-blue-500/40 rounded w-full"></div>
-            <div className="h-1 bg-blue-600/40 rounded w-2/3"></div>
+          <div className="mt-4 pt-3 border-t border-blue-500/20 text-center">
+            <span className="text-xl">💻</span>
           </div>
         </div>
-        {/* Cristales Energéticos Bajos */}
-        <div className="mt-4 p-4 bg-blue-600/10 border border-blue-500/30 rounded-2xl text-center shadow-[0_0_20px_rgba(59,130,246,0.3)]">
-          <span className="text-2xl animate-pulse">💎</span>
-          <p className="text-[10px] font-mono text-cyan-300 mt-1">Core Crystal Active</p>
-        </div>
-      </div>
 
-      {/* RACKS DE MONITOREO Y BRAZO MECÁNICO (Derecha) */}
-      <div className="absolute right-2 top-24 hidden xl:flex flex-col space-y-3 opacity-60 pointer-events-none z-0">
-        <div className="bg-slate-950/80 border border-blue-500/40 p-3 rounded-xl w-32 shadow-[0_0_15px_rgba(37,99,235,0.2)]">
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-[9px] font-mono text-cyan-400">ROBOT-ARM</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-          </div>
-          <div className="font-mono text-[9px] text-slate-400">
-            [===o===] <br/>
-            Status: Ready
-          </div>
+        {/* Cristales Energéticos Inferiores Izquierdos */}
+        <div className="absolute left-10 bottom-12 p-5 bg-blue-600/10 border border-blue-500/40 rounded-3xl text-center shadow-[0_0_30px_rgba(59,130,246,0.4)] backdrop-blur-md">
+          <span className="text-4xl animate-pulse">💎</span>
+          <p className="text-[10px] font-mono text-cyan-300 mt-1 uppercase tracking-widest">Core Crystal Active</p>
         </div>
-        <div className="bg-slate-950/80 border border-blue-500/40 p-3 rounded-xl w-32 shadow-[0_0_15px_rgba(37,99,235,0.2)]">
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-[9px] font-mono text-cyan-400">HASH-MON</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+
+        {/* Rack y Brazo Mecánico Derecho */}
+        <div className="absolute right-6 top-28 w-40 bg-slate-950/90 border border-blue-500/40 rounded-2xl p-4 shadow-[0_0_25px_rgba(37,99,235,0.3)]">
+          <div className="flex justify-between items-center mb-3 border-b border-blue-500/20 pb-2">
+            <span className="text-[10px] font-mono text-cyan-400 font-bold">ROBOT-ARM 02</span>
+            <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
           </div>
-          <div className="h-8 bg-slate-900 rounded border border-blue-500/20 flex items-end p-1 gap-1">
-            <div className="w-1 bg-cyan-400 h-4"></div>
-            <div className="w-1 bg-blue-500 h-6"></div>
-            <div className="w-1 bg-cyan-400 h-3"></div>
-            <div className="w-1 bg-blue-400 h-7"></div>
+          <div className="font-mono text-[10px] text-slate-300 space-y-1 bg-slate-900 p-2 rounded border border-blue-500/20">
+            <p className="text-blue-400">[===o===]</p>
+            <p>Status: Mining</p>
+            <p className="text-emerald-400">Sync: 100%</p>
           </div>
         </div>
       </div>
 
-      {/* Barra Superior - Estética de Cabina Neón */}
-      <header className="border-b border-blue-500/30 bg-slate-950/90 backdrop-blur-2xl sticky top-0 z-50 px-6 py-4 flex justify-between items-center shadow-[0_4px_30px_rgba(37,99,235,0.3)]">
+      {/* BARRA SUPERIOR - Estilo Estación de Control */}
+      <header className="border-b border-blue-500/40 bg-slate-950/95 backdrop-blur-2xl sticky top-0 z-50 px-6 py-4 flex justify-between items-center shadow-[0_4px_30px_rgba(37,99,235,0.4)]">
         <div className="flex items-center space-x-3">
-          <div className="bg-blue-600/20 p-2.5 rounded-2xl border border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.6)]">
+          <div className="bg-blue-600/20 p-2.5 rounded-2xl border border-blue-500/60 shadow-[0_0_20px_rgba(59,130,246,0.7)]">
             <Cpu className="w-6 h-6 text-blue-400 animate-pulse" />
           </div>
           <div>
             <h1 className="text-xl font-black tracking-wider text-white flex items-center gap-2">
               LAB<span className="text-blue-500 drop-shadow-[0_0_12px_rgba(59,130,246,0.9)]">COIN</span>
-              <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-500/50 font-mono shadow-[inset_0_0_10px_rgba(59,130,246,0.3)]">CoreCoin Engine v2.0</span>
+              <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-500/60 font-mono shadow-[inset_0_0_10px_rgba(59,130,246,0.4)]">CoreCoin Engine v2.0</span>
             </h1>
             <p className="text-xs text-slate-400 flex items-center gap-1.5 font-mono">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> 
@@ -88,10 +71,10 @@ export default function LabCoinApp() {
           </div>
         </div>
 
-        {/* Widgets de Balance y Tickets Neón */}
+        {/* WIDGETS DE BALANCE Y TICKETS (Superior Derecha) */}
         <div className="flex items-center space-x-4">
-          <div className="bg-slate-900/90 border border-blue-500/40 px-4 py-2.5 rounded-2xl flex items-center space-x-3 shadow-[0_0_15px_rgba(37,99,235,0.15)]">
-            <div className="bg-blue-600/30 p-1.5 rounded-xl border border-blue-500/50">
+          <div className="bg-slate-900/90 border border-blue-500/50 px-4 py-2.5 rounded-2xl flex items-center space-x-3 shadow-[0_0_20px_rgba(37,99,235,0.25)]">
+            <div className="bg-blue-600/30 p-1.5 rounded-xl border border-blue-500/60">
               <DollarSign className="w-4 h-4 text-blue-400" />
             </div>
             <div>
@@ -100,24 +83,24 @@ export default function LabCoinApp() {
             </div>
           </div>
 
-          <div className="bg-slate-900/90 border border-blue-500/40 px-4 py-2.5 rounded-2xl flex items-center space-x-3 shadow-[0_0_15px_rgba(37,99,235,0.15)] hidden sm:flex">
-            <div className="bg-amber-500/20 p-1.5 rounded-xl border border-amber-500/40">
+          <div className="bg-slate-900/90 border border-blue-500/50 px-4 py-2.5 rounded-2xl flex items-center space-x-3 shadow-[0_0_20px_rgba(37,99,235,0.25)] hidden sm:flex">
+            <div className="bg-amber-500/20 p-1.5 rounded-xl border border-amber-500/50">
               <Ticket className="w-4 h-4 text-amber-400" />
             </div>
             <div>
               <p className="text-[9px] text-amber-300 uppercase font-mono tracking-wider">Tickets Lotería</p>
-              <p className="text-sm font-mono font-bold text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.4)]">{tickets}</p>
+              <p className="text-sm font-mono font-bold text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]">{tickets}</p>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Contenedor Principal Estilo Laboratorio Interactivo */}
-      <div className="flex-1 flex flex-col md:flex-row max-w-6xl w-full mx-auto p-6 gap-6 relative z-10">
+      {/* CONTENEDOR PRINCIPAL FLOTANTE */}
+      <div className="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto p-6 gap-6 relative z-10 my-auto">
         
-        {/* Panel Izquierdo: Módulos del Sistema */}
+        {/* PANEL IZQUIERDO: Módulos del Sistema */}
         <aside className="w-full md:w-72 space-y-2.5">
-          <div className="px-4 py-2 text-[10px] font-mono text-blue-400/80 uppercase tracking-widest flex items-center gap-2">
+          <div className="px-4 py-2 text-[10px] font-mono text-blue-400 uppercase tracking-widest flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> System Modules
           </div>
           {[
@@ -136,8 +119,8 @@ export default function LabCoinApp() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center space-x-3.5 px-5 py-3.5 rounded-2xl font-semibold transition-all duration-300 group relative overflow-hidden ${
                   isActive 
-                    ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(37,99,235,0.7)] scale-[1.02] border border-blue-300/60' 
-                    : 'bg-slate-900/80 hover:bg-slate-900/90 text-slate-300 border border-blue-500/20 hover:border-blue-500/50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]'
+                    ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_30px_rgba(37,99,235,0.8)] scale-[1.02] border border-blue-300/80' 
+                    : 'bg-slate-900/85 hover:bg-slate-900 text-slate-300 border border-blue-500/30 hover:border-blue-500/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]'
                 }`}
               >
                 <Icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${isActive ? 'text-white' : 'text-blue-400'}`} />
@@ -146,53 +129,60 @@ export default function LabCoinApp() {
             );
           })}
 
-          {/* Monitor de Hash del Reactor */}
-          <div className="mt-8 bg-slate-950/90 border border-blue-500/40 rounded-2xl p-4 space-y-3 shadow-[0_0_20px_rgba(37,99,235,0.2)] backdrop-blur-md">
+          {/* Tarjeta Monitor Hash Rate */}
+          <div className="mt-6 bg-slate-950/90 border border-blue-500/50 rounded-2xl p-4 space-y-3 shadow-[0_0_25px_rgba(37,99,235,0.25)] backdrop-blur-md">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-blue-400 flex items-center gap-1.5">
                 <Activity className="w-3.5 h-3.5 animate-pulse" /> Hash Rate Status
               </span>
-              <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">ONLINE</span>
+              <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/50">ONLINE</span>
             </div>
-            <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-blue-500/30">
+            <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-blue-500/40">
               <div className="bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-400 h-full w-4/5 animate-pulse"></div>
             </div>
             <p className="text-[10px] text-slate-400 font-mono">Velocidad: 45.8 GH/s (Stable)</p>
           </div>
         </aside>
 
-        {/* Panel Central Dinámico */}
-        <main className="flex-1 bg-slate-950/85 border border-blue-500/50 rounded-3xl p-8 backdrop-blur-2xl shadow-[0_0_50px_rgba(37,99,235,0.3)] relative overflow-hidden">
+        {/* PANEL CENTRAL DINÁMICO CON ESTÉTICA DE CRISTAL ESMERILADO Y NEÓN */}
+        <main className="flex-1 bg-slate-950/90 border-2 border-blue-500/60 rounded-3xl p-8 backdrop-blur-2xl shadow-[0_0_60px_rgba(37,99,235,0.4)] relative overflow-hidden">
           
-          {/* Brillo neón decorativo superior */}
+          {/* Brillo neón ambiental interno */}
           <div className="absolute -top-32 -right-32 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
 
           {activeTab === 'claim' && (
             <div className="space-y-6 relative z-10">
               <div>
-                <h2 className="text-2xl font-black text-white tracking-wide drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]">Laboratorio Faucet LabCoin</h2>
+                <h2 className="text-2xl font-black text-white tracking-wide drop-shadow-[0_0_12px_rgba(59,130,246,0.7)]">Reclamo Faucet LabCoin</h2>
                 <p className="text-sm text-slate-400">Extrae micro-recompensas estables directamente a tu balance en USDT mediante la estación central.</p>
               </div>
 
-              <div className="bg-slate-900/90 border border-blue-500/40 rounded-3xl p-8 text-center space-y-6 shadow-[0_0_35px_rgba(37,99,235,0.2)]">
-                <div className="inline-block bg-blue-600/20 border border-blue-500/50 px-5 py-2 rounded-full text-blue-300 font-mono text-xs font-bold shadow-[0_0_15px_rgba(59,130,246,0.4)]">
+              {/* Contenedor Interno Estilo Consola */}
+              <div className="bg-slate-900/95 border border-blue-500/50 rounded-3xl p-8 text-center space-y-6 shadow-[0_0_40px_rgba(37,99,235,0.25)]">
+                <div className="inline-block bg-blue-600/25 border border-blue-500/60 px-6 py-2.5 rounded-full text-blue-300 font-mono text-xs font-bold shadow-[0_0_20px_rgba(59,130,246,0.5)]">
                   Recompensa por Ciclo: $0.00100 USDT + 1 Ticket Opcional
                 </div>
 
-                <div className="max-w-md mx-auto bg-slate-950 border border-blue-500/30 p-6 rounded-2xl space-y-5 shadow-[inset_0_0_25px_rgba(37,99,235,0.15)]">
-                  <div className="flex items-center justify-center space-x-2 text-xs text-slate-300 font-mono bg-slate-900 py-3 rounded-xl border border-blue-500/20">
+                <div className="max-w-md mx-auto bg-slate-950 border border-blue-500/40 p-6 rounded-2xl space-y-5 shadow-[inset_0_0_30px_rgba(37,99,235,0.2)]">
+                  <div className="flex items-center justify-center space-x-2 text-xs text-slate-300 font-mono bg-slate-900 py-3 rounded-xl border border-blue-500/30">
                     <ShieldAlert className="w-4 h-4 text-blue-400 animate-bounce" />
                     <span>[ Verificación de Seguridad / Captcha ]</span>
                   </div>
 
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-extrabold py-4 rounded-2xl transition-all shadow-[0_0_30px_rgba(37,99,235,0.7)] tracking-wide text-base border border-blue-300/50">
+                  <button className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-extrabold py-4 rounded-2xl transition-all shadow-[0_0_35px_rgba(37,99,235,0.8)] tracking-wide text-base border border-blue-300/60 cursor-pointer active:scale-95">
                     Reclamar Recompensa
                   </button>
 
-                  <div className="flex items-center space-x-3 pt-2 justify-center bg-blue-950/40 p-3 rounded-xl border border-blue-500/30">
-                    <input type="checkbox" id="bonusAd" className="rounded border-slate-700 bg-slate-900 text-blue-600 w-4 h-4 accent-blue-500 cursor-pointer" />
+                  <div className="flex items-center space-x-3 pt-2 justify-center bg-blue-950/50 p-3 rounded-xl border border-blue-500/40">
+                    <input 
+                      type="checkbox" 
+                      id="bonusAd" 
+                      checked={bonusChecked}
+                      onChange={(e) => setBonusChecked(e.target.checked)}
+                      className="rounded border-slate-700 bg-slate-900 text-blue-600 w-4 h-4 accent-blue-500 cursor-pointer" 
+                    />
                     <label htmlFor="bonusAd" className="text-xs text-slate-300 cursor-pointer select-none">
-                      Ver anuncio rápido para ganar <span className="text-amber-400 font-bold drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]">+1 Ticket extra</span>
+                      Ver anuncio rápido para ganar <span className="text-amber-400 font-bold drop-shadow-[0_0_8px_rgba(251,191,36,0.7)]">+1 Ticket extra</span>
                     </label>
                   </div>
                 </div>
@@ -208,12 +198,12 @@ export default function LabCoinApp() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[1, 2, 3, 4].map((item) => (
-                  <div key={item} className="bg-slate-900/90 border border-blue-500/30 p-6 rounded-2xl flex justify-between items-center hover:border-blue-500/60 transition-all shadow-[0_0_15px_rgba(37,99,235,0.15)]">
+                  <div key={item} className="bg-slate-900/90 border border-blue-500/40 p-6 rounded-2xl flex justify-between items-center hover:border-blue-500/80 transition-all shadow-[0_0_20px_rgba(37,99,235,0.2)]">
                     <div>
                       <h3 className="font-bold text-white text-sm">ShrinkMe Conexión #{item}</h3>
                       <p className="text-xs text-slate-400 mt-1">Recompensa: $0.0005 + <span className="text-amber-400 font-bold">+2 Tickets</span></p>
                     </div>
-                    <button className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)] border border-blue-400/40">
+                    <button className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-[0_0_20px_rgba(37,99,235,0.5)] border border-blue-400/50 cursor-pointer">
                       Visitar
                     </button>
                   </div>
@@ -229,19 +219,19 @@ export default function LabCoinApp() {
                 <p className="text-sm text-slate-400">Alcanza las metas operativas del día para reclamar bonificaciones automáticas.</p>
               </div>
               <div className="space-y-4">
-                <div className="bg-slate-900/90 border border-blue-500/30 p-6 rounded-2xl flex justify-between items-center shadow-[0_0_15px_rgba(37,99,235,0.15)]">
+                <div className="bg-slate-900/90 border border-blue-500/40 p-6 rounded-2xl flex justify-between items-center shadow-[0_0_20px_rgba(37,99,235,0.2)]">
                   <div>
                     <h3 className="font-bold text-white text-base">Meta Diaria: Ver 10 Anuncios PTC</h3>
                     <p className="text-xs text-slate-400 mt-1">Progreso del Reactor: <span className="text-blue-400 font-bold font-mono">10 / 10 Completado</span></p>
                   </div>
                   {ptcClaimed ? (
-                    <span className="text-emerald-400 text-xs font-bold flex items-center gap-1.5 bg-emerald-500/20 px-4 py-2 rounded-xl border border-emerald-500/40">
+                    <span className="text-emerald-400 text-xs font-bold flex items-center gap-1.5 bg-emerald-500/20 px-4 py-2 rounded-xl border border-emerald-500/50">
                       <CheckCircle2 className="w-4 h-4"/> Reclamado
                     </span>
                   ) : (
                     <button 
                       onClick={() => { setPtcClaimed(true); setTickets(tickets + 1); }} 
-                      className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all shadow-[0_0_20px_rgba(251,191,36,0.5)] border border-amber-300"
+                      className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all shadow-[0_0_25px_rgba(251,191,36,0.6)] border border-amber-300 cursor-pointer"
                     >
                       Reclamar +1 Ticket
                     </button>
@@ -257,16 +247,16 @@ export default function LabCoinApp() {
                 <h2 className="text-2xl font-black text-white tracking-wide">Terminal de Retiro en USDT</h2>
                 <p className="text-sm text-slate-400">Envía tus fondos instantáneamente a tu cuenta vinculada mediante FaucetPay.</p>
               </div>
-              <div className="bg-slate-900/90 border border-blue-500/40 rounded-3xl p-8 max-w-lg space-y-5 shadow-[0_0_30px_rgba(37,99,235,0.2)]">
+              <div className="bg-slate-900/90 border border-blue-500/50 rounded-3xl p-8 max-w-lg space-y-5 shadow-[0_0_35px_rgba(37,99,235,0.25)]">
                 <div className="space-y-2">
                   <label className="text-xs font-mono text-blue-300 uppercase">Correo electrónico de FaucetPay</label>
                   <input 
                     type="text" 
                     placeholder="tucorreo@gmail.com" 
-                    className="w-full bg-slate-950 border border-blue-500/40 rounded-2xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/50 font-mono shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]" 
+                    className="w-full bg-slate-950 border border-blue-500/50 rounded-2xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/50 font-mono shadow-[inset_0_0_15px_rgba(0,0,0,0.6)]" 
                   />
                 </div>
-                <button className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-extrabold py-4 rounded-2xl transition-all shadow-[0_0_25px_rgba(37,99,235,0.6)] border border-blue-300/40">
+                <button className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-extrabold py-4 rounded-2xl transition-all shadow-[0_0_30px_rgba(37,99,235,0.7)] border border-blue-300/50 cursor-pointer">
                   Procesar Retiro Inmediato
                 </button>
               </div>
@@ -279,7 +269,7 @@ export default function LabCoinApp() {
                 <h2 className="text-2xl font-black text-white tracking-wide">Reactor PTC</h2>
                 <p className="text-sm text-slate-400">Visualiza los anuncios patrocinados para generar micro-rendimientos en USDT.</p>
               </div>
-              <div className="bg-slate-900/90 border border-blue-500/30 p-10 rounded-3xl text-center space-y-4 shadow-[0_0_20px_rgba(37,99,235,0.15)]">
+              <div className="bg-slate-900/90 border border-blue-500/40 p-10 rounded-3xl text-center space-y-4 shadow-[0_0_25px_rgba(37,99,235,0.2)]">
                 <p className="text-sm text-slate-400 font-mono">No hay anuncios PTC activos en este momento. Vuelve en unas horas para nuevos pulsos.</p>
               </div>
             </div>
@@ -291,7 +281,7 @@ export default function LabCoinApp() {
                 <h2 className="text-2xl font-black text-white tracking-wide">Videos Recompensados</h2>
                 <p className="text-sm text-slate-400">Reproduce contenido patrocinado corto optimizado para dispositivos móviles.</p>
               </div>
-              <div className="bg-slate-900/90 border border-blue-500/30 p-10 rounded-3xl text-center space-y-4 shadow-[0_0_20px_rgba(37,99,235,0.15)]">
+              <div className="bg-slate-900/90 border border-blue-500/40 p-10 rounded-3xl text-center space-y-4 shadow-[0_0_25px_rgba(37,99,235,0.2)]">
                 <p className="text-sm text-slate-400 font-mono">Canales de video en sincronización con Adsterra y Monetag.</p>
               </div>
             </div>
