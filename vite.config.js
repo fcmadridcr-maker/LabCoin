@@ -5,12 +5,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    // Opción 1: Agregar específicamente el dominio que te dio el error
-    allowedHosts: [
-      'sb-3tkbhbfwpihq.vercel.run'
-    ],
-    
-    // O bien, Opción 2: Permitir cualquier host si estás en un entorno dinámico de pruebas
-    // allowedHosts: true,
+    allowedHosts: true, // Esto permite cualquier host del entorno remoto automáticamente
   }
 })
