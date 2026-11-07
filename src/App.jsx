@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Sun, Moon, Wallet, Clock, CheckCircle2, 
   ArrowUpRight, ShieldCheck, RefreshCw, Coins, 
-  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X 
+  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X, Cpu, Zap, CheckCircle 
 } from 'lucide-react';
 
 export default function FaucetDashboard() {
@@ -12,12 +12,16 @@ export default function FaucetDashboard() {
   // Balance en USDT
   const [balanceUSDT, setBalanceUSDT] = useState(24.5000);
 
-  // Contadores de límites diarios
-  const [dailyVideoClaims, setDailyVideoClaims] = useState(3);
-  const [dailyTotalClaims, setDailyTotalClaims] = useState(12);
-
-  // Estado del Bono Diario
+  // Contadores de límites diarios y misiones de Farming
+  const [dailyVideoClaims, setDailyVideoClaims] = useState(3); // Meta: 10
+  const [dailyTotalClaims, setDailyTotalClaims] = useState(12); // Meta gral: 50
+  const [shortlinksDone, setShortlinksDone] = useState(2); // Meta: 5
+  const [ptcDone, setPtcDone] = useState(1); // Meta: 5
   const [dailyBonusClaimed, setDailyBonusClaimed] = useState(false);
+
+  // Estado del sistema de Farming Diario
+  const [farmingActive, setFarmingActive] = useState(false);
+  const [farmedEarnings, setFarmedEarnings] = useState(0.00000);
 
   // Redes disponibles para USDT
   const networks = [
@@ -29,21 +33,20 @@ export default function FaucetDashboard() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [isClaiming, setIsClaiming] = useState(false);
 
-  // Estados para el Captcha y Video Ad de Faucet
+  // Estados para el Captcha y Video Ad
   const [showCaptchaModal, setShowCaptchaModal] = useState(false);
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [showAdModal, setShowAdModal] = useState(false);
   const [adTimer, setAdTimer] = useState(15);
   const [isAdPlaying, setIsAdPlaying] = useState(false);
-  const [activeAdType, setActiveAdType] = useState('faucet'); // 'faucet' o 'bonus'
+  const [activeAdType, setActiveAdType] = useState('faucet');
 
   // Historial de reclamos
   const [claims, setClaims] = useState([
     { id: 1, asset: 'USDT (Solana)', amount: '0.00065 USDT (+30%)', type: 'Faucet (Video Ad)', status: 'Completado', time: 'Hace 5 min' },
-    { id: 2, asset: 'USDT (BEP-20)', amount: '0.00050 USDT', type: 'Faucet Base', status: 'Completado', time: 'Hace 24 min' },
   ]);
 
-  // Temporizador de Faucet principal
+  // Temporizadores principales
   useEffect(() => {
     if (timeLeft > 0) {
       const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
@@ -51,7 +54,18 @@ export default function FaucetDashboard() {
     }
   }, [timeLeft]);
 
-  // Temporizador del Video Ad (15 segundos)
+  // Simulación de acumulación pasiva si el Farming está activo
+  useEffect(() => {
+    let farmInterval;
+    if (farmingActive) {
+      farmInterval = setInterval(() => {
+        setFarmedEarnings(prev => prev + 0.00001);
+      }, 2000);
+    }
+    return () => clearInterval(farmInterval);
+  }, [farmingActive]);
+
+  // Temporizador de Video Ad (15 segundos)
   useEffect(() => {
     let adInterval;
     if (isAdPlaying && adTimer > 0) {
@@ -64,12 +78,16 @@ export default function FaucetDashboard() {
         executeFinalClaim('bonus');
       } else if (activeAdType === 'bonus') {
         executeBonusClaim();
+      } else if (activeAdType === 'ptc') {
+        executePtcClaim();
+      } else if (activeAdType === 'shortlink') {
+        executeShortlinkClaim();
       }
     }
     return () => clearInterval(adInterval);
   }, [isAdPlaying, adTimer, activeAdType]);
 
-  // Faucet: Paso 1
+  // Faucet Handlers
   const handleClaimClick = () => {
     if (timeLeft > 0 || isClaiming) return;
     if (dailyTotalClaims >= 50) {
@@ -80,20 +98,17 @@ export default function FaucetDashboard() {
     setShowCaptchaModal(true);
   };
 
-  // Faucet: Paso 2
   const handleCaptchaPassed = () => {
     setShowCaptchaModal(false);
     setActiveAdType('faucet');
     setShowAdModal(true);
   };
 
-  // Faucet: Reclamo Normal
   const handleNormalClaim = () => {
     setShowAdModal(false);
     executeFinalClaim('base');
   };
 
-  // Faucet: Iniciar Video Ad
   const startVideoAd = () => {
     if (dailyVideoClaims >= 10) {
       alert("Has alcanzado el límite diario de 10 videos con bonificación.");
@@ -104,10 +119,8 @@ export default function FaucetDashboard() {
     setIsAdPlaying(true);
   };
 
-  // Ejecución final del reclamo de Faucet
   const executeFinalClaim = (type) => {
     setIsClaiming(true);
-
     const earnedAmount = type === 'bonus' ? selectedNetwork.bonusReward : selectedNetwork.baseReward;
     const typeLabel = type === 'bonus' ? 'Faucet (Video Ad +30%)' : 'Faucet Base';
 
@@ -122,20 +135,13 @@ export default function FaucetDashboard() {
       setBalanceUSDT(prev => prev + earnedAmount);
       
       setClaims(prev => [
-        { 
-          id: Date.now(), 
-          asset: `USDT (${selectedNetwork.name.split(' ')[0]})`, 
-          amount: `${earnedAmount.toFixed(5)} USDT`, 
-          type: typeLabel, 
-          status: 'Completado', 
-          time: 'Ahora mismo' 
-        },
+        { id: Date.now(), asset: `USDT (${selectedNetwork.name.split(' ')[0]})`, amount: `${earnedAmount.toFixed(5)} USDT`, type: typeLabel, status: 'Completado', time: 'Ahora mismo' },
         ...prev
       ]);
     }, 1000);
   };
 
-  // Bono Diario: Al hacer clic en reclamar bono
+  // Bono Diario Handler
   const handleBonusClick = () => {
     if (dailyBonusClaimed) return;
     setActiveAdType('bonus');
@@ -143,23 +149,50 @@ export default function FaucetDashboard() {
     setIsAdPlaying(true);
   };
 
-  // Ejecución final del Bono Diario tras ver el video
   const executeBonusClaim = () => {
     setDailyBonusClaimed(true);
-    const bonusAmount = 0.00500; // Ejemplo de bono diario en USDT
-
+    const bonusAmount = 0.00500;
     setBalanceUSDT(prev => prev + bonusAmount);
     setClaims(prev => [
-      { 
-        id: Date.now(), 
-        asset: 'USDT (Global)', 
-        amount: `${bonusAmount.toFixed(5)} USDT`, 
-        type: 'Bono Diario (Video Ad)', 
-        status: 'Completado', 
-        time: 'Ahora mismo' 
-      },
+      { id: Date.now(), asset: 'USDT (Global)', amount: `${bonusAmount.toFixed(5)} USDT`, type: 'Bono Diario (Video Ad)', status: 'Completado', time: 'Ahora mismo' },
       ...prev
     ]);
+  };
+
+  // PTC & Shortlinks Progress Simulators
+  const triggerPtcView = () => {
+    if (ptcDone >= 5) return;
+    setActiveAdType('ptc');
+    setAdTimer(10);
+    setIsAdPlaying(true);
+  };
+
+  const executePtcClaim = () => {
+    setPtcDone(prev => prev + 1);
+    setBalanceUSDT(prev => prev + 0.0005);
+  };
+
+  const triggerShortlinkView = () => {
+    if (shortlinksDone >= 5) return;
+    setActiveAdType('shortlink');
+    setAdTimer(10);
+    setIsAdPlaying(true);
+  };
+
+  const executeShortlinkClaim = () => {
+    setShortlinksDone(prev => prev + 1);
+    setBalanceUSDT(prev => prev + 0.001);
+  };
+
+  // Validación de requisitos para activar el Farming
+  const canActivateFarming = dailyVideoClaims >= 10 && shortlinksDone >= 5 && ptcDone >= 5;
+
+  const toggleFarming = () => {
+    if (!canActivateFarming) {
+      alert("Debes cumplir con todas las misiones diarias antes de activar el Farming (10 Videos Ads, 5 Shortlinks y 5 PTC).");
+      return;
+    }
+    setFarmingActive(!farmingActive);
   };
 
   return (
@@ -196,6 +229,7 @@ export default function FaucetDashboard() {
         {[
           { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
           { id: 'faucet', label: 'Faucet USDT', icon: Coins },
+          { id: 'farming', label: 'Farming Bot', icon: Cpu },
           { id: 'shortlinks', label: 'Shortlinks', icon: ExternalLink },
           { id: 'ptc', label: 'Anuncios PTC', icon: MousePointerClick },
           { id: 'tasks', label: 'Tareas', icon: ListTodo },
@@ -213,7 +247,7 @@ export default function FaucetDashboard() {
                   : 'border-transparent text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Icon size={16} /> {tab.label}
+              <Icon size={16} /> {tab.label} {tab.id === 'farming' && farmingActive && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>}
             </button>
           );
         })}
@@ -222,7 +256,7 @@ export default function FaucetDashboard() {
       {/* Contenido Principal */}
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
 
-        {/* VISTA 1: DASHBOARD & BILLETERA USDT */}
+        {/* VISTA 1: DASHBOARD */}
         {activeTab === 'dashboard' && (
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -234,39 +268,29 @@ export default function FaucetDashboard() {
                 </div>
               </div>
 
-              {/* Tarjeta de Límites Diarios */}
+              {/* Estado de Farming en Dashboard */}
               <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Límites Diarios de Faucet</p>
-                <div className="mt-3 space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-400">Reclamos Totales:</span>
-                    <span className="font-bold">{dailyTotalClaims} / 50</span>
-                  </div>
-                  <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                    <div className="bg-cyan-500 h-full" style={{ width: `${(dailyTotalClaims / 50) * 100}%` }}></div>
-                  </div>
-
-                  <div className="flex justify-between text-xs pt-1">
-                    <span className="text-slate-400">Videos con +30%:</span>
-                    <span className="font-bold text-amber-400">{dailyVideoClaims} / 10</span>
-                  </div>
-                  <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                    <div className="bg-amber-500 h-full" style={{ width: `${(dailyVideoClaims / 10) * 100}%` }}></div>
-                  </div>
+                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Estado Bot de Farming</p>
+                <div className="flex items-center gap-2 mt-3">
+                  <span className={`w-3 h-3 rounded-full ${farmingActive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></span>
+                  <span className="font-bold text-sm">{farmingActive ? 'Farmearndo Activo (00:00 UTC)' : 'Inactivo (Requisitos pendientes)'}</span>
                 </div>
+                <p className={`mt-3 text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                  {farmingActive ? `Generados: +${farmedEarnings.toFixed(5)} USDT` : `Videos: ${dailyVideoClaims}/10 | SL: ${shortlinksDone}/5 | PTC: ${ptcDone}/5`}
+                </p>
               </div>
 
               <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
                 <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Bono Diario</p>
                 <div className="flex items-center gap-2 mt-3">
                   <span className={`w-3 h-3 rounded-full ${dailyBonusClaimed ? 'bg-slate-500' : 'bg-amber-500 animate-pulse'}`}></span>
-                  <span className="font-bold text-sm">{dailyBonusClaimed ? 'Reclamado hoy' : 'Disponible para ver video'}</span>
+                  <span className="font-bold text-sm">{dailyBonusClaimed ? 'Reclamado hoy' : 'Disponible'}</span>
                 </div>
-                <p className={`mt-3 text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Renovación cada 24 horas</p>
+                <p className={`mt-3 text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Renovación diaria</p>
               </div>
             </div>
 
-            {/* Resumen de Billetera USDT */}
+            {/* Billetera USDT */}
             <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
               <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                 <Wallet className="text-cyan-400" size={20} /> Billetera de Tether (USDT)
@@ -302,7 +326,7 @@ export default function FaucetDashboard() {
               <Coins className="text-cyan-400" size={20} /> Reclamo Faucet de USDT
             </h3>
             <p className={`text-xs mb-6 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-              Gana <strong className="text-emerald-400">0.00050 USDT</strong> base o mira un video de 15s para obtener un <strong className="text-amber-400">+30% extra (0.00065 USDT)</strong>. (Disponibles hoy: {10 - dailyVideoClaims} videos restantes).
+              Gana <strong className="text-emerald-400">0.00050 USDT</strong> base o mira un video de 15s para obtener un <strong className="text-amber-400">+30% extra</strong> (Videos hoy: {dailyVideoClaims}/10).
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -355,20 +379,91 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 3: SHORTLINKS */}
+        {/* VISTA 3: NUEVA PESTAÑA DE FARMING BOT */}
+        {activeTab === 'farming' && (
+          <div className={`p-8 rounded-2xl border text-center space-y-6 ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-cyan-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <Cpu className="text-slate-950 animate-pulse" size={40} />
+            </div>
+            <div>
+              <h3 className="text-2xl font-extrabold">LabCoin Auto-Farming Bot</h3>
+              <p className={`text-xs mt-1 max-w-lg mx-auto ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                Completa tus misiones diarias para activar el bot minero. Una vez activado, farmeará USDT pasivamente sin pausas hasta el reinicio automático del servidor a las **00:00 UTC**.
+              </p>
+            </div>
+
+            {/* Progreso de Misiones Requeridas */}
+            <div className={`max-w-md mx-auto p-5 rounded-2xl border text-left space-y-3 ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+              <h4 className="font-bold text-xs uppercase text-slate-400 tracking-wider mb-2">Requisitos Diarios de Activación:</h4>
+              
+              <div className="flex justify-between items-center text-sm">
+                <span className="flex items-center gap-2">
+                  {dailyVideoClaims >= 10 ? <CheckCircle className="text-emerald-400" size={16} /> : <span className="w-4 h-4 rounded-full border border-slate-600 inline-block"></span>}
+                  Ver al menos 10 Video Ads
+                </span>
+                <span className="font-bold text-amber-400">{dailyVideoClaims} / 10</span>
+              </div>
+
+              <div className="flex justify-between items-center text-sm">
+                <span className="flex items-center gap-2">
+                  {shortlinksDone >= 5 ? <CheckCircle className="text-emerald-400" size={16} /> : <span className="w-4 h-4 rounded-full border border-slate-600 inline-block"></span>}
+                  Hacer 5 Short-Links
+                </span>
+                <span className="font-bold text-cyan-400">{shortlinksDone} / 5</span>
+              </div>
+
+              <div className="flex justify-between items-center text-sm">
+                <span className="flex items-center gap-2">
+                  {ptcDone >= 5 ? <CheckCircle className="text-emerald-400" size={16} /> : <span className="w-4 h-4 rounded-full border border-slate-600 inline-block"></span>}
+                  Ver 5 Anuncios PTC
+                </span>
+                <span className="font-bold text-purple-400">{ptcDone} / 5</span>
+              </div>
+            </div>
+
+            {/* Botón de Activación / Estado */}
+            <div className="pt-2">
+              {farmingActive ? (
+                <div className="space-y-3">
+                  <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-sm font-bold animate-pulse">
+                    <Zap size={16} /> FARMING ACTIVO EN CURSO
+                  </div>
+                  <p className="text-xs text-slate-400">USDT acumulados por farming: <strong className="text-emerald-400">{farmedEarnings.toFixed(5)} USDT</strong></p>
+                </div>
+              ) : (
+                <button
+                  onClick={toggleFarming}
+                  className={`px-8 py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${
+                    canActivateFarming 
+                      ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 shadow-emerald-500/20 active:scale-95 cursor-pointer' 
+                      : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                  }`}
+                >
+                  {canActivateFarming ? '🚀 Activar Bot de Farming Ahora' : '🔒 Completa las tareas para desbloquear'}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* VISTA 4: SHORTLINKS */}
         {activeTab === 'shortlinks' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <ExternalLink className="text-cyan-400" size={20} /> Enlaces Cortos (Gana USDT Extra)
+            <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
+              <span className="flex items-center gap-2"><ExternalLink className="text-cyan-400" size={20} /> Enlaces Cortos (Shortlinks)</span>
+              <span className="text-xs font-normal text-cyan-400">Progreso hoy: {shortlinksDone}/5</span>
             </h3>
             <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
+              {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className={`p-4 rounded-xl border flex items-center justify-between ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                   <div>
                     <h4 className="font-bold text-sm">Shortlink Wall #{i}</h4>
-                    <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Recompensa: 0.001 USDT</p>
+                    <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Recompensa: 0.001 USDT + 1 Tarea de Farming</p>
                   </div>
-                  <button className="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all">
+                  <button 
+                    onClick={triggerShortlinkView}
+                    className="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all"
+                  >
                     Visitar Enlace
                   </button>
                 </div>
@@ -377,20 +472,24 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 4: PTC */}
+        {/* VISTA 5: PTC */}
         {activeTab === 'ptc' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <MousePointerClick className="text-cyan-400" size={20} /> Anuncios Patrocinados USDT (PTC)
+            <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
+              <span className="flex items-center gap-2"><MousePointerClick className="text-cyan-400" size={20} /> Anuncios Patrocinados (PTC)</span>
+              <span className="text-xs font-normal text-purple-400">Progreso hoy: {ptcDone}/5</span>
             </h3>
             <div className="space-y-3">
-              {[1, 2].map((i) => (
+              {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className={`p-4 rounded-xl border flex items-center justify-between ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                   <div>
-                    <h4 className="font-bold text-sm">Ver anuncio publicitario ({i * 15}s)</h4>
-                    <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Recompensa: 0.0005 USDT</p>
+                    <h4 className="font-bold text-sm">Anuncio PTC #{i} (10s)</h4>
+                    <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Recompensa: 0.0005 USDT + 1 Tarea de Farming</p>
                   </div>
-                  <button className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all">
+                  <button 
+                    onClick={triggerPtcView}
+                    className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all"
+                  >
                     Ver Anuncio
                   </button>
                 </div>
@@ -399,14 +498,14 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 5: TAREAS */}
+        {/* VISTA 6: TAREAS */}
         {activeTab === 'tasks' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
               <ListTodo className="text-cyan-400" size={20} /> Muro de Tareas USDT
             </h3>
             <div className={`p-6 rounded-xl border text-center ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-              <p className={`text-sm ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>Completa ofertas y tareas especiales para recibir pagos directos en USDT.</p>
+              <p className={`text-sm ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>Completa ofertas especiales para recibir pagos directos en USDT.</p>
               <button className="mt-4 px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-bold text-sm">
                 Ver Tareas
               </button>
@@ -414,13 +513,13 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 6: BONO DIARIO CON VIDEO AD DE 15s */}
+        {/* VISTA 7: BONO DIARIO */}
         {activeTab === 'bonus' && (
           <div className={`p-6 rounded-2xl border text-center ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <Gift className="mx-auto text-amber-400 mb-2 animate-bounce" size={44} />
             <h3 className="text-xl font-bold">Bono Diario en USDT</h3>
             <p className={`text-xs mt-1 max-w-md mx-auto ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-              Mira un breve video patrocinado de 15 segundos para reclamar tu bonificación diaria acumulativa de <strong className="text-emerald-400">0.00500 USDT</strong>.
+              Mira un breve video de 15 segundos para reclamar tu bono diario de <strong className="text-emerald-400">0.00500 USDT</strong>.
             </p>
             <button 
               disabled={dailyBonusClaimed}
@@ -431,7 +530,7 @@ export default function FaucetDashboard() {
                   : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-orange-500/20 active:scale-95'
               }`}
             >
-              {dailyBonusClaimed ? '✓ Bono Diario Reclamado (Vuelve mañana)' : '▶ Ver Video & Reclamar Bono USDT'}
+              {dailyBonusClaimed ? '✓ Bono Diario Reclamado' : '▶ Ver Video & Reclamar Bono USDT'}
             </button>
           </div>
         )}
@@ -459,11 +558,7 @@ export default function FaucetDashboard() {
                     <td className={`py-3.5 px-4 text-xs ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>{item.type}</td>
                     <td className="py-3.5 px-4 text-emerald-400 font-medium">{item.amount}</td>
                     <td className="py-3.5 px-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                        item.status === 'Completado' 
-                          ? (darkMode ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-emerald-100 text-emerald-700')
-                          : (darkMode ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-amber-100 text-amber-700')
-                      }`}>
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${item.status === 'Completado' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400'}`}>
                         {item.status}
                       </span>
                     </td>
@@ -477,7 +572,7 @@ export default function FaucetDashboard() {
 
       </main>
 
-      {/* MODAL 1: CAPTCHA */}
+      {/* MODAL CAPTCHA */}
       {showCaptchaModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div className={`w-full max-w-md p-6 rounded-2xl border shadow-2xl ${darkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'}`}>
@@ -485,9 +580,8 @@ export default function FaucetDashboard() {
               <ShieldCheck className="text-emerald-400" size={22} /> Verificación Anti-Bot
             </h3>
             <p className={`text-xs mb-6 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-              Resuelve la verificación para continuar con tu reclamo en <strong className="text-cyan-400">{selectedNetwork.name}</strong>.
+              Resuelve la verificación para continuar en <strong className="text-cyan-400">{selectedNetwork.name}</strong>.
             </p>
-
             <div className={`p-4 rounded-xl border mb-6 flex items-center justify-between ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
               <div className="flex items-center gap-3">
                 <input 
@@ -497,37 +591,19 @@ export default function FaucetDashboard() {
                   onChange={(e) => setCaptchaVerified(e.target.checked)}
                   className="w-5 h-5 accent-emerald-500 rounded cursor-pointer"
                 />
-                <label htmlFor="captcha" className="text-sm font-medium cursor-pointer select-none">
-                  No soy un robot
-                </label>
+                <label htmlFor="captcha" className="text-sm font-medium cursor-pointer select-none">No soy un robot</label>
               </div>
               <span className="text-[10px] uppercase font-bold px-2 py-1 bg-slate-800 text-cyan-400 rounded">reCAPTCHA</span>
             </div>
-
             <div className="flex gap-3">
-              <button
-                onClick={() => setShowCaptchaModal(false)}
-                className={`w-1/2 py-2.5 rounded-xl font-bold text-xs border transition-all ${darkMode ? 'border-slate-700 hover:bg-slate-800 text-slate-300' : 'border-slate-300 hover:bg-slate-100 text-slate-700'}`}
-              >
-                Cancelar
-              </button>
-              <button
-                disabled={!captchaVerified}
-                onClick={handleCaptchaPassed}
-                className={`w-1/2 py-2.5 rounded-xl font-bold text-xs transition-all shadow-lg ${
-                  !captchaVerified 
-                    ? 'bg-slate-700 text-slate-400 cursor-not-allowed opacity-50' 
-                    : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/20'
-                }`}
-              >
-                Continuar
-              </button>
+              <button onClick={() => setShowCaptchaModal(false)} className="w-1/2 py-2.5 rounded-xl font-bold text-xs border border-slate-700">Cancelar</button>
+              <button disabled={!captchaVerified} onClick={handleCaptchaPassed} className={`w-1/2 py-2.5 rounded-xl font-bold text-xs ${!captchaVerified ? 'bg-slate-700 opacity-50 cursor-not-allowed' : 'bg-emerald-500 text-slate-950'}`}>Continuar</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL 2: OPCIÓN DE VIDEO AD DE 15s (+30%) O RECLAMO NORMAL */}
+      {/* MODAL VIDEO AD */}
       {showAdModal && !isAdPlaying && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div className={`w-full max-w-md p-6 rounded-2xl border shadow-2xl ${darkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'}`}>
@@ -535,89 +611,53 @@ export default function FaucetDashboard() {
               <h3 className="text-lg font-bold flex items-center gap-2">
                 <PlaySquare className="text-amber-400" size={22} /> ¡Gana un 30% Extra!
               </h3>
-              <button onClick={() => setShowAdModal(false)} className="text-slate-400 hover:text-slate-200">
-                <X size={20} />
-              </button>
+              <button onClick={() => setShowAdModal(false)} className="text-slate-400"><X size={20} /></button>
             </div>
-            
-            <p className={`text-xs mb-6 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-              Videos bonificados disponibles hoy: <strong className="text-amber-400">{10 - dailyVideoClaims} / 10</strong>
-            </p>
-
             <div className="space-y-3 mb-6">
               <button
                 disabled={dailyVideoClaims >= 10}
                 onClick={startVideoAd}
-                className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between group ${
-                  dailyVideoClaims >= 10 
-                    ? 'opacity-50 cursor-not-allowed border-slate-800 bg-slate-950' 
-                    : 'border-amber-500/40 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:border-amber-500'
-                }`}
+                className="w-full p-4 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:border-amber-500 text-left transition-all flex items-center justify-between"
               >
                 <div>
-                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-500 text-slate-950">
-                    {dailyVideoClaims >= 10 ? 'Límite diario alcanzado' : '¡Recomendado! +30%'}
-                  </span>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-500 text-slate-950">¡Recomendado! +30%</span>
                   <h4 className="font-bold text-sm mt-2 text-amber-400">Ver Video Ad (15s)</h4>
                   <p className="text-xs text-slate-400">Recibirás: <strong>{selectedNetwork.bonusReward.toFixed(5)} USDT</strong></p>
                 </div>
-                <PlaySquare className="text-amber-400 group-hover:scale-110 transition-transform" size={28} />
+                <PlaySquare className="text-amber-400" size={28} />
               </button>
-
               <button
                 onClick={handleNormalClaim}
-                className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between ${darkMode ? 'border-slate-800 bg-slate-950 hover:bg-slate-800/50' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'}`}
+                className="w-full p-4 rounded-xl border border-slate-800 bg-slate-950 text-left transition-all"
               >
-                <div>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded ${darkMode ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-700'}`}>Estándar</span>
-                  <h4 className="font-bold text-sm mt-2">Reclamar sin Ver Video</h4>
-                  <p className="text-xs text-slate-400">Recibirás: {selectedNetwork.baseReward.toFixed(5)} USDT</p>
-                </div>
+                <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">Estándar</span>
+                <h4 className="font-bold text-sm mt-2">Reclamar sin Ver Video</h4>
+                <p className="text-xs text-slate-400">Recibirás: {selectedNetwork.baseReward.toFixed(5)} USDT</p>
               </button>
             </div>
-
-            <button
-              onClick={() => setShowAdModal(false)}
-              className={`w-full py-2.5 rounded-xl font-bold text-xs border transition-all ${darkMode ? 'border-slate-700 hover:bg-slate-800 text-slate-300' : 'border-slate-300 hover:bg-slate-100 text-slate-700'}`}
-            >
-              Cancelar
-            </button>
+            <button onClick={() => setShowAdModal(false)} className="w-full py-2.5 rounded-xl font-bold text-xs border border-slate-700">Cancelar</button>
           </div>
         </div>
       )}
 
-      {/* MODAL 3: REPRODUCTOR SIMULADO DE VIDEO AD (15 SEGUNDOS - FAUCET O BONO) */}
+      {/* REPRODUCTOR DE VIDEO AD */}
       {isAdPlaying && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
           <div className="w-full max-w-lg p-8 rounded-2xl border border-slate-800 bg-slate-950 text-center space-y-6 shadow-2xl">
             <div className="flex justify-between items-center">
               <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                Reproduciendo Video Patrocinado ({activeAdType === 'bonus' ? 'Bono Diario' : 'Faucet'}) - 15s...
+                Reproduciendo Anuncio Patrocinado ({activeAdType.toUpperCase()})
               </span>
-              <span className="text-sm font-bold text-slate-400">
-                Cierre en <strong className="text-cyan-400">{adTimer}s</strong>
-              </span>
+              <span className="text-sm font-bold text-slate-400">Cierre en <strong className="text-cyan-400">{adTimer}s</strong></span>
             </div>
-
             <div className="w-full h-48 rounded-xl bg-gradient-to-br from-slate-900 to-slate-900 border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
-              <div className="absolute inset-0 bg-cyan-500/5 animate-pulse"></div>
               <PlaySquare className="text-cyan-400 mb-2 animate-bounce" size={48} />
-              <h4 className="font-bold text-base text-slate-200">Patrocinador LabCoin Ads</h4>
-              <p className="text-xs text-slate-400 mt-1">
-                {activeAdType === 'bonus' ? 'Mira el video para acreditar tu Bono Diario en USDT' : 'Disfruta el video para acreditar tu +30% extra en USDT'}
-              </p>
-              
+              <h4 className="font-bold text-base text-slate-200">LabCoin Patrocinios</h4>
+              <p className="text-xs text-slate-400 mt-1">Completa el tiempo para sumar tu progreso y recompensa</p>
               <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-800">
-                <div 
-                  className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-1000"
-                  style={{ width: `${(adTimer / 15) * 100}%` }}
-                ></div>
+                <div className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-1000" style={{ width: `${(adTimer / 15) * 100}%` }}></div>
               </div>
             </div>
-
-            <p className="text-xs text-slate-500">
-              Mantén abierta la ventana para asegurar tu acreditación automática.
-            </p>
           </div>
         </div>
       )}
