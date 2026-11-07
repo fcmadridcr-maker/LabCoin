@@ -21,7 +21,7 @@ export default function FaucetDashboard() {
 
   // Estado del Farming (Activado por defecto en Nivel 1)
   const [farmingLevel, setFarmingLevel] = useState(1); 
-  const [farmedEarnings, setFarmedEarnings] = useState(0.01250); 
+  const [farmedEarnings, setFarmedEarnings] = useState(0.00015); 
 
   // Redes disponibles para USDT
   const networks = [
@@ -54,13 +54,12 @@ export default function FaucetDashboard() {
     }
   }, [timeLeft]);
 
-  // Simulación de acumulación pasiva basada en multiplicadores (1.0x y 1.2x)
+  // Simulación de acumulación pasiva sostenible (Nivel 1 = 1.0x, Nivel 2 = 1.2x)
   useEffect(() => {
     let farmInterval;
     if (farmingLevel > 0) {
       farmInterval = setInterval(() => {
-        // Tasa base (Nivel 1 = 1.0x -> 0.00002) y (Nivel 2 = 1.2x -> 0.000024)
-        const baseRate = 0.00002;
+        const baseRate = 0.0000002; // Tasa segura por segundo
         const multiplier = farmingLevel === 1 ? 1.0 : 1.2;
         const currentRate = baseRate * multiplier;
         
@@ -285,7 +284,7 @@ export default function FaucetDashboard() {
                 </div>
                 <div className="mt-3 flex items-center justify-between text-xs">
                   <span className={darkMode ? 'text-slate-400' : 'text-slate-500'}>Cosecha acumulada:</span>
-                  <strong className="text-cyan-400">{farmedEarnings.toFixed(5)} USDT</strong>
+                  <strong className="text-cyan-400">{farmedEarnings.toFixed(6)} USDT</strong>
                 </div>
               </div>
 
@@ -388,7 +387,7 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 3: PESTAÑA DE FARMING (NIVEL 1 = 1.0x | NIVEL 2 = 1.2x) */}
+        {/* VISTA 3: PESTAÑA DE FARMING SOSTENIBLE (1.0x / 1.2x) */}
         {activeTab === 'farming' && (
           <div className={`p-8 rounded-2xl border space-y-8 relative overflow-hidden ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             
@@ -418,7 +417,7 @@ export default function FaucetDashboard() {
               <div className={`p-4 rounded-xl border flex items-center gap-4 ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                 <div>
                   <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Cosecha Disponible:</p>
-                  <p className="text-lg font-extrabold text-cyan-400">{farmedEarnings.toFixed(5)} USDT</p>
+                  <p className="text-lg font-extrabold text-cyan-400">{farmedEarnings.toFixed(6)} USDT</p>
                 </div>
                 <button
                   disabled={farmedEarnings <= 0}
@@ -469,8 +468,8 @@ export default function FaucetDashboard() {
                   </h4>
                   <p className={`text-xs mt-1 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
                     {farmingLevel > 0 
-                      ? `Potencia de extracción actual: ${farmingLevel === 1 ? '1.0x (Estándar)' : '1.2x (+20% Velocidad)'}`
-                      : 'Activa un nivel de minería abajo para comenzar la extracción pasiva.'}
+                      ? `Extracción pasiva sostenible (${farmingLevel === 1 ? '1.0x' : '1.2x'})`
+                      : 'Activa un nivel de minería abajo para comenzar la extracción.'}
                   </p>
                 </div>
 
@@ -483,7 +482,7 @@ export default function FaucetDashboard() {
               </div>
             </div>
 
-            {/* Selector de Niveles (1.0x y 1.2x) */}
+            {/* Selector de Niveles (Tasas Sostenibles) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
               
               {/* NIVEL 1 (1.0x) */}
@@ -495,11 +494,11 @@ export default function FaucetDashboard() {
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-xs font-bold px-2.5 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">FARMING NIVEL 1</span>
-                    <span className="text-xs text-cyan-400 font-mono font-bold">Poder: 1.0x</span>
+                    <span className="text-xs text-cyan-400 font-mono font-bold">Poder: 1.0x (Sostenible)</span>
                   </div>
-                  <h4 className="font-bold text-base">Tasa Base Estándar</h4>
+                  <h4 className="font-bold text-base">Tasa Base Segura</h4>
                   <p className={`text-xs mt-2 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                    Velocidad inicial de minería pasiva para acumulación constante.
+                    Genera ~0.0007 USDT por hora sin arriesgar la liquidez del proyecto.
                   </p>
                 </div>
 
@@ -528,9 +527,9 @@ export default function FaucetDashboard() {
                     </span>
                     <span className="text-xs text-cyan-300 font-mono font-bold">Poder: 1.2x (+20%)</span>
                   </div>
-                  <h4 className="font-bold text-base">Núcleo de Minería Acelerado</h4>
+                  <h4 className="font-bold text-base">Núcleo Acelerado Seguro</h4>
                   <p className={`text-xs mt-2 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                    Incrementa la velocidad de recolección pasiva un 20% adicional.
+                    Genera ~0.00086 USDT por hora para usuarios muy activos.
                   </p>
                 </div>
 
