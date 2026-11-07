@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Sun, Moon, Wallet, Clock, CheckCircle2, 
   ArrowUpRight, ShieldCheck, RefreshCw, Coins, 
-  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X, Cpu, Zap, Download, Activity 
+  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X, Cpu, Zap, Download, Activity, Sparkles 
 } from 'lucide-react';
 
 export default function FaucetDashboard() {
@@ -19,7 +19,7 @@ export default function FaucetDashboard() {
   const [ptcDone, setPtcDone] = useState(4);
   const [dailyBonusClaimed, setDailyBonusClaimed] = useState(false);
 
-  // Estado del Farming (Activado por defecto en Nivel 1 para pruebas)
+  // Estado del Farming (Activado por defecto en Nivel 1)
   const [farmingLevel, setFarmingLevel] = useState(1); 
   const [farmedEarnings, setFarmedEarnings] = useState(0.01250); 
 
@@ -183,7 +183,7 @@ export default function FaucetDashboard() {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
       
-      {/* Estilos CSS para la animación de la línea neón estilo reanimador */}
+      {/* Estilos CSS para animaciones de la línea neón y ondas de farming */}
       <style>{`
         @keyframes neonScan {
           0% { transform: translateX(-100%); opacity: 0; }
@@ -192,6 +192,13 @@ export default function FaucetDashboard() {
         }
         .neon-line-anim {
           animation: neonScan 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulseGlow {
+          0%, 100% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.08); opacity: 1; }
+        }
+        .pulse-core {
+          animation: pulseGlow 3s ease-in-out infinite;
         }
       `}</style>
 
@@ -377,11 +384,11 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 3: PESTAÑA DE FARMING CON ANIMACIÓN DE LÍNEA NEÓN */}
+        {/* VISTA 3: PESTAÑA DE FARMING CON CAJA INTERACTIVA Y LÍNEA NEÓN */}
         {activeTab === 'farming' && (
-          <div className={`p-8 rounded-2xl border space-y-6 relative overflow-hidden ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
+          <div className={`p-8 rounded-2xl border space-y-8 relative overflow-hidden ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             
-            {/* LÍNEA NEÓN ANIMADA TIPO REANIMADOR (Efecto de escaneo continuo azul neón) */}
+            {/* LÍNEA NEÓN ANIMADA TIPO REANIMADOR */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-slate-800 overflow-hidden">
               <div className="absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-cyan-400 to-transparent neon-line-anim shadow-[0_0_15px_#22d3ee]"></div>
             </div>
@@ -420,6 +427,58 @@ export default function FaucetDashboard() {
                 >
                   <Download size={14} /> Recoger
                 </button>
+              </div>
+            </div>
+
+            {/* CAJA INTERACTIVA ANIMADA DE MINERÍA (VISTA VISUAL DE FARMING) */}
+            <div className={`p-6 rounded-2xl border relative overflow-hidden text-center transition-all ${
+              farmingLevel > 0 
+                ? (darkMode ? 'bg-slate-950/90 border-cyan-500/50 shadow-[0_0_30px_rgba(6,182,212,0.15)]' : 'bg-cyan-50/50 border-cyan-400 shadow-md')
+                : (darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200')
+            }`}>
+              
+              {/* Fondo con brillo animado si está activo */}
+              {farmingLevel > 0 && (
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-emerald-500/5 to-cyan-500/5 animate-pulse pointer-events-none"></div>
+              )}
+
+              <div className="relative z-10 flex flex-col items-center space-y-4">
+                
+                {/* Núcleo Animado con Pulsos */}
+                <div className="relative flex items-center justify-center">
+                  <div className={`absolute w-28 h-28 rounded-full border border-cyan-500/30 ${farmingLevel > 0 ? 'animate-ping' : ''}`}></div>
+                  <div className={`absolute w-36 h-36 rounded-full border border-emerald-500/20 ${farmingLevel > 0 ? 'animate-pulse' : ''}`}></div>
+                  
+                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center bg-gradient-to-tr from-cyan-500 to-emerald-500 shadow-xl shadow-cyan-500/30 ${farmingLevel > 0 ? 'pulse-core' : 'opacity-50'}`}>
+                    <Sparkles className="text-slate-950 animate-spin" style={{ animationDuration: '6s' }} size={36} />
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-extrabold text-lg flex items-center justify-center gap-2">
+                    {farmingLevel > 0 ? (
+                      <>
+                        <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+                        Minando USDT Activamente...
+                      </>
+                    ) : (
+                      <span className="text-slate-500">Bot de Minería en Pausa</span>
+                    )}
+                  </h4>
+                  <p className={`text-xs mt-1 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                    {farmingLevel > 0 
+                      ? `Extrayendo a una velocidad de ${farmingLevel === 1 ? '0.00072 USDT/h' : '0.00180 USDT/h'}`
+                      : 'Activa un nivel de minería abajo para comenzar la extracción pasiva.'}
+                  </p>
+                </div>
+
+                {/* Contador grande en tiempo real */}
+                <div className={`px-6 py-3 rounded-2xl border font-mono text-2xl font-black tracking-wider ${
+                  darkMode ? 'bg-slate-900 border-slate-800 text-cyan-400 shadow-inner' : 'bg-white border-slate-200 text-cyan-600 shadow-sm'
+                }`}>
+                  +{farmedEarnings.toFixed(6)} <span className="text-xs font-sans font-normal text-slate-400">USDT</span>
+                </div>
+
               </div>
             </div>
 
