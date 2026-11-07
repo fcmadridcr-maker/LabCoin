@@ -54,13 +54,17 @@ export default function FaucetDashboard() {
     }
   }, [timeLeft]);
 
-  // Simulación de acumulación pasiva del bot
+  // Simulación de acumulación pasiva basada en multiplicadores (1.0x y 1.2x)
   useEffect(() => {
     let farmInterval;
     if (farmingLevel > 0) {
       farmInterval = setInterval(() => {
-        const rate = farmingLevel === 1 ? 0.00002 : 0.00005;
-        setFarmedEarnings(prev => prev + rate);
+        // Tasa base (Nivel 1 = 1.0x -> 0.00002) y (Nivel 2 = 1.2x -> 0.000024)
+        const baseRate = 0.00002;
+        const multiplier = farmingLevel === 1 ? 1.0 : 1.2;
+        const currentRate = baseRate * multiplier;
+        
+        setFarmedEarnings(prev => prev + currentRate);
       }, 1000);
     }
     return () => clearInterval(farmInterval);
@@ -183,7 +187,7 @@ export default function FaucetDashboard() {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
       
-      {/* Estilos CSS para animaciones de la línea neón y ondas de farming */}
+      {/* Estilos CSS para animaciones */}
       <style>{`
         @keyframes neonScan {
           0% { transform: translateX(-100%); opacity: 0; }
@@ -277,7 +281,7 @@ export default function FaucetDashboard() {
                 <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Estado Bot de Farming</p>
                 <div className="flex items-center gap-2 mt-3">
                   <span className={`w-3 h-3 rounded-full ${farmingLevel > 0 ? 'bg-cyan-400 animate-pulse' : 'bg-amber-500'}`}></span>
-                  <span className="font-bold text-sm">{farmingLevel > 0 ? `Activo (Nivel ${farmingLevel})` : 'Inactivo'}</span>
+                  <span className="font-bold text-sm">{farmingLevel > 0 ? `Activo (Nivel ${farmingLevel} - ${farmingLevel === 1 ? '1.0x' : '1.2x'})` : 'Inactivo'}</span>
                 </div>
                 <div className="mt-3 flex items-center justify-between text-xs">
                   <span className={darkMode ? 'text-slate-400' : 'text-slate-500'}>Cosecha acumulada:</span>
@@ -384,7 +388,7 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 3: PESTAÑA DE FARMING CON CAJA INTERACTIVA Y LÍNEA NEÓN */}
+        {/* VISTA 3: PESTAÑA DE FARMING (NIVEL 1 = 1.0x | NIVEL 2 = 1.2x) */}
         {activeTab === 'farming' && (
           <div className={`p-8 rounded-2xl border space-y-8 relative overflow-hidden ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             
@@ -405,7 +409,7 @@ export default function FaucetDashboard() {
                     <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">Modo Test Libre</span>
                   </h3>
                   <p className={`text-xs mt-0.5 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                    Estado: <strong className="text-cyan-400">{farmingLevel === 0 ? 'Inactivo' : `Nivel ${farmingLevel} Operativo`}</strong> (Reinicia a las 00:00 UTC)
+                    Estado: <strong className="text-cyan-400">{farmingLevel === 0 ? 'Inactivo' : `Nivel ${farmingLevel} (${farmingLevel === 1 ? '1.0x' : '1.2x'}) Operativo`}</strong>
                   </p>
                 </div>
               </div>
@@ -430,21 +434,19 @@ export default function FaucetDashboard() {
               </div>
             </div>
 
-            {/* CAJA INTERACTIVA ANIMADA DE MINERÍA (VISTA VISUAL DE FARMING) */}
+            {/* CAJA INTERACTIVA ANIMADA DE MINERÍA */}
             <div className={`p-6 rounded-2xl border relative overflow-hidden text-center transition-all ${
               farmingLevel > 0 
                 ? (darkMode ? 'bg-slate-950/90 border-cyan-500/50 shadow-[0_0_30px_rgba(6,182,212,0.15)]' : 'bg-cyan-50/50 border-cyan-400 shadow-md')
                 : (darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200')
             }`}>
               
-              {/* Fondo con brillo animado si está activo */}
               {farmingLevel > 0 && (
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-emerald-500/5 to-cyan-500/5 animate-pulse pointer-events-none"></div>
               )}
 
               <div className="relative z-10 flex flex-col items-center space-y-4">
                 
-                {/* Núcleo Animado con Pulsos */}
                 <div className="relative flex items-center justify-center">
                   <div className={`absolute w-28 h-28 rounded-full border border-cyan-500/30 ${farmingLevel > 0 ? 'animate-ping' : ''}`}></div>
                   <div className={`absolute w-36 h-36 rounded-full border border-emerald-500/20 ${farmingLevel > 0 ? 'animate-pulse' : ''}`}></div>
@@ -459,7 +461,7 @@ export default function FaucetDashboard() {
                     {farmingLevel > 0 ? (
                       <>
                         <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
-                        Minando USDT Activamente...
+                        Minando USDT (Multiplicador {farmingLevel === 1 ? '1.0x' : '1.2x'})...
                       </>
                     ) : (
                       <span className="text-slate-500">Bot de Minería en Pausa</span>
@@ -467,12 +469,11 @@ export default function FaucetDashboard() {
                   </h4>
                   <p className={`text-xs mt-1 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
                     {farmingLevel > 0 
-                      ? `Extrayendo a una velocidad de ${farmingLevel === 1 ? '0.00072 USDT/h' : '0.00180 USDT/h'}`
+                      ? `Potencia de extracción actual: ${farmingLevel === 1 ? '1.0x (Estándar)' : '1.2x (+20% Velocidad)'}`
                       : 'Activa un nivel de minería abajo para comenzar la extracción pasiva.'}
                   </p>
                 </div>
 
-                {/* Contador grande en tiempo real */}
                 <div className={`px-6 py-3 rounded-2xl border font-mono text-2xl font-black tracking-wider ${
                   darkMode ? 'bg-slate-900 border-slate-800 text-cyan-400 shadow-inner' : 'bg-white border-slate-200 text-cyan-600 shadow-sm'
                 }`}>
@@ -482,10 +483,10 @@ export default function FaucetDashboard() {
               </div>
             </div>
 
-            {/* Selector de Niveles de Prueba */}
+            {/* Selector de Niveles (1.0x y 1.2x) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
               
-              {/* NIVEL 1 */}
+              {/* NIVEL 1 (1.0x) */}
               <div className={`p-6 rounded-2xl border flex flex-col justify-between space-y-4 ${
                 farmingLevel === 1 
                   ? (darkMode ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/5' : 'border-cyan-600 bg-cyan-50') 
@@ -494,11 +495,11 @@ export default function FaucetDashboard() {
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-xs font-bold px-2.5 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">FARMING NIVEL 1</span>
-                    <span className="text-xs text-cyan-400 font-mono">0.00072 USDT/h</span>
+                    <span className="text-xs text-cyan-400 font-mono font-bold">Poder: 1.0x</span>
                   </div>
-                  <h4 className="font-bold text-base">Tasa Base de Minería Pasiva</h4>
+                  <h4 className="font-bold text-base">Tasa Base Estándar</h4>
                   <p className={`text-xs mt-2 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                    El bot opera de forma continua generando fracciones de USDT directo a tu tanque de cosecha.
+                    Velocidad inicial de minería pasiva para acumulación constante.
                   </p>
                 </div>
 
@@ -510,11 +511,11 @@ export default function FaucetDashboard() {
                       : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                   }`}
                 >
-                  {farmingLevel === 1 ? '⚡ Nivel 1 Activo (Minando)' : 'Activar Nivel 1'}
+                  {farmingLevel === 1 ? '⚡ Nivel 1 (1.0x) Activo' : 'Activar Nivel 1 (1.0x)'}
                 </button>
               </div>
 
-              {/* NIVEL 2 ÉLITE */}
+              {/* NIVEL 2 (1.2x) */}
               <div className={`p-6 rounded-2xl border flex flex-col justify-between space-y-4 ${
                 farmingLevel === 2 
                   ? (darkMode ? 'border-cyan-400 bg-cyan-400/10 shadow-lg shadow-cyan-400/5' : 'border-cyan-600 bg-cyan-50') 
@@ -523,13 +524,13 @@ export default function FaucetDashboard() {
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-xs font-bold px-2.5 py-1 rounded bg-cyan-400/10 text-cyan-300 border border-cyan-400/20 flex items-center gap-1">
-                      <Activity size={14} /> NIVEL 2 (ÉLITE 2.5X)
+                      <Activity size={14} /> NIVEL 2 (ÉLITE)
                     </span>
-                    <span className="text-xs text-cyan-300 font-mono">0.00180 USDT/h</span>
+                    <span className="text-xs text-cyan-300 font-mono font-bold">Poder: 1.2x (+20%)</span>
                   </div>
-                  <h4 className="font-bold text-base">Potencia Máxima Acelerada</h4>
+                  <h4 className="font-bold text-base">Núcleo de Minería Acelerado</h4>
                   <p className={`text-xs mt-2 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                    Duplica la velocidad de acumulación pasiva con el núcleo de minería avanzado de LabCoin.
+                    Incrementa la velocidad de recolección pasiva un 20% adicional.
                   </p>
                 </div>
 
@@ -541,7 +542,7 @@ export default function FaucetDashboard() {
                       : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                   }`}
                 >
-                  {farmingLevel === 2 ? '⚡ Nivel 2 Élite Activo (Super Minado)' : 'Activar Nivel 2 Élite'}
+                  {farmingLevel === 2 ? '⚡ Nivel 2 (1.2x) Activo' : 'Activar Nivel 2 (1.2x)'}
                 </button>
               </div>
 
