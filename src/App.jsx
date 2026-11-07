@@ -2,15 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { 
   Sun, Moon, Wallet, Clock, CheckCircle2, 
   ArrowUpRight, ShieldCheck, RefreshCw, Coins, 
-  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X
+  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X, AlertCircle 
 } from 'lucide-react';
 
 export default function FaucetDashboard() {
   const [darkMode, setDarkMode] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   
-  // Balance en USDT (ajustado al nuevo monto base de 0.0005)
+  // Balance en USDT
   const [balanceUSDT, setBalanceUSDT] = useState(24.5000);
+
+  // Contadores de límites diarios
+  const [dailyVideoClaims, setDailyVideoClaims] = useState(3); // Ejemplo: ya usó 3 de 10
+  const [dailyTotalClaims, setDailyTotalClaims] = useState(12); // Ejemplo: ya hizo 12 de 50
 
   // Redes disponibles para USDT
   const networks = [
@@ -26,11 +30,10 @@ export default function FaucetDashboard() {
   const [showCaptchaModal, setShowCaptchaModal] = useState(false);
   const [captchaVerified, setCaptchaVerified] = useState(false);
   
-  // Estado para el Modal de Video Ad (Reward Ad)
+  // Estado para el Modal de Video Ad (15 segundos)
   const [showAdModal, setShowAdModal] = useState(false);
-  const [adTimer, setAdTimer] = useState(5);
+  const [adTimer, setAdTimer] = useState(15);
   const [isAdPlaying, setIsAdPlaying] = useState(false);
-  const [pendingRewardType, setPendingRewardType] = useState('base'); // 'base' o 'bonus'
   
   // Historial de reclamos
   const [claims, setClaims] = useState([
@@ -46,7 +49,7 @@ export default function FaucetDashboard() {
     }
   }, [timeLeft]);
 
-  // Temporizador del Video Ad (5 segundos)
+  // Temporizador del Video Ad (15 segundos)
   useEffect(() => {
     let adInterval;
     if (isAdPlaying && adTimer > 0) {
@@ -60,14 +63,18 @@ export default function FaucetDashboard() {
     return () => clearInterval(adInterval);
   }, [isAdPlaying, adTimer]);
 
-  // Paso 1: Al hacer clic en Claim, abrimos el Captcha
+  // Paso 1: Al hacer clic en Claim
   const handleClaimClick = () => {
     if (timeLeft > 0 || isClaiming) return;
+    if (dailyTotalClaims >= 50) {
+      alert("Has alcanzado el límite máximo de 50 reclamos totales por hoy.");
+      return;
+    }
     setCaptchaVerified(false);
     setShowCaptchaModal(true);
   };
 
-  // Paso 2: Al verificar el captcha, cerramos el captcha y abrimos el selector de opción (Normal o Video Ad)
+  // Paso 2: Al verificar el captcha
   const handleCaptchaPassed = () => {
     setShowCaptchaModal(false);
     setShowAdModal(true);
@@ -79,19 +86,28 @@ export default function FaucetDashboard() {
     executeFinalClaim('base');
   };
 
-  // Paso 3B: Iniciar reproducción del Video Ad para el +30%
+  // Paso 3B: Iniciar reproducción del Video Ad de 15s para el +30%
   const startVideoAd = () => {
-    setAdTimer(5);
+    if (dailyVideoClaims >= 10) {
+      alert("Has alcanzado el límite diario de 10 videos con bonificación. Puedes reclamar la versión base.");
+      return;
+    }
+    setAdTimer(15);
+    setShowAdModal(false);
     setIsAdPlaying(true);
   };
 
-  // Ejecución final del reclamo y acreditación
+  // Ejecución final del reclamo
   const executeFinalClaim = (type) => {
-    setShowAdModal(false);
     setIsClaiming(true);
 
     const earnedAmount = type === 'bonus' ? selectedNetwork.bonusReward : selectedNetwork.baseReward;
     const typeLabel = type === 'bonus' ? 'Faucet (Video Ad +30%)' : 'Faucet Base';
+
+    if (type === 'bonus') {
+      setDailyVideoClaims(prev => prev + 1);
+    }
+    setDailyTotalClaims(prev => prev + 1);
 
     setTimeout(() => {
       setIsClaiming(false);
@@ -183,18 +199,36 @@ export default function FaucetDashboard() {
                   <ArrowUpRight size={14} /> Listo para retiro inmediato
                 </div>
               </div>
+
+              {/* Tarjeta de Límites Diarios */}
               <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Reclamos Totales</p>
-                <h2 className="text-3xl font-extrabold mt-2 tracking-tight">148</h2>
-                <p className={`mt-4 text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Moneda base: USDT</p>
+                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Límites Diarios de Faucet</p>
+                <div className="mt-3 space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-400">Reclamos Totales:</span>
+                    <span className="font-bold">{dailyTotalClaims} / 50</span>
+                  </div>
+                  <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div className="bg-cyan-500 h-full" style={{ width: `${(dailyTotalClaims / 50) * 100}%` }}></div>
+                  </div>
+
+                  <div className="flex justify-between text-xs pt-1">
+                    <span className="text-slate-400">Videos con +30%:</span>
+                    <span className="font-bold text-amber-400">{dailyVideoClaims} / 10</span>
+                  </div>
+                  <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div className="bg-amber-500 h-full" style={{ width: `${(dailyVideoClaims / 10) * 100}%` }}></div>
+                  </div>
+                </div>
               </div>
+
               <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Bonificación Activa</p>
+                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Seguridad Activa</p>
                 <div className="flex items-center gap-2 mt-3">
                   <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="font-bold text-sm">+30% viendo Video Ads</span>
+                  <span className="font-bold text-sm">Anti-Bot & Captcha</span>
                 </div>
-                <p className={`mt-3 text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Maximiza tus ganancias diarias</p>
+                <p className={`mt-3 text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Protección optimizada en redes</p>
               </div>
             </div>
 
@@ -227,14 +261,14 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 2: FAUCET CON SELECCIÓN DE RED Y CAPTCHA */}
+        {/* VISTA 2: FAUCET CON SELECCIÓN DE RED Y LÍMITES */}
         {activeTab === 'faucet' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
               <Coins className="text-cyan-400" size={20} /> Reclamo Faucet de USDT
             </h3>
             <p className={`text-xs mb-6 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-              Gana <strong className="text-emerald-400">0.00050 USDT</strong> base o mira un breve video ad para obtener un <strong className="text-amber-400">+30% extra (0.00065 USDT)</strong>.
+              Gana <strong className="text-emerald-400">0.00050 USDT</strong> base o mira un video de 15s para obtener un <strong className="text-amber-400">+30% extra (0.00065 USDT)</strong>. (Disponibles hoy: {10 - dailyVideoClaims} videos restantes).
             </p>
 
             {/* Selector de Redes (Solana o BNB) */}
@@ -256,7 +290,7 @@ export default function FaucetDashboard() {
                   <div className="mt-4">
                     <h4 className="font-bold text-sm">{net.name}</h4>
                     <p className="text-sm font-bold mt-1 text-emerald-400">Normal: {net.baseReward.toFixed(5)} USDT</p>
-                    <p className="text-xs font-semibold text-amber-400 mt-0.5">Con Video Ad: {net.bonusReward.toFixed(5)} USDT (+30%)</p>
+                    <p className="text-xs font-semibold text-amber-400 mt-0.5">Con Video (15s): {net.bonusReward.toFixed(5)} USDT (+30%)</p>
                   </div>
                 </button>
               ))}
@@ -267,20 +301,21 @@ export default function FaucetDashboard() {
               <div>
                 <h4 className="font-bold text-base">Reclamar en {selectedNetwork.name}</h4>
                 <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                  Protegido con Captcha y opción de bonificación por video.
+                  Reclamos hoy: <strong className="text-cyan-400">{dailyTotalClaims}/50</strong>
                 </p>
               </div>
 
               <button
-                disabled={timeLeft > 0 || isClaiming}
+                disabled={timeLeft > 0 || isClaiming || dailyTotalClaims >= 50}
                 onClick={handleClaimClick}
                 className={`w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg ${
-                  timeLeft > 0 || isClaiming
+                  timeLeft > 0 || isClaiming || dailyTotalClaims >= 50
                     ? 'bg-slate-700 text-slate-400 cursor-not-allowed opacity-70'
                     : 'bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950'
                 }`}
               >
                 {isClaiming ? <><RefreshCw className="animate-spin" size={16} /> Procesando...</> : 
+                 dailyTotalClaims >= 50 ? 'Límite diario alcanzado (50/50)' :
                  timeLeft > 0 ? <><Clock size={16} /> Espera {timeLeft}s</> : 
                  <><CheckCircle2 size={16} /> Claim Faucet</>}
               </button>
@@ -447,7 +482,7 @@ export default function FaucetDashboard() {
         </div>
       )}
 
-      {/* MODAL 2: OPCIÓN DE VIDEO AD (+30%) O RECLAMO NORMAL */}
+      {/* MODAL 2: OPCIÓN DE VIDEO AD DE 15s (+30%) O RECLAMO NORMAL */}
       {showAdModal && !isAdPlaying && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div className={`w-full max-w-md p-6 rounded-2xl border shadow-2xl ${darkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'}`}>
@@ -461,18 +496,25 @@ export default function FaucetDashboard() {
             </div>
             
             <p className={`text-xs mb-6 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-              Has superado el captcha con éxito. Puedes reclamar tu recompensa estándar o ver un corto anuncio publicitario para aumentar tu pago un 30% más.
+              Videos bonificados disponibles hoy: <strong className="text-amber-400">{10 - dailyVideoClaims} / 10</strong>
             </p>
 
             <div className="space-y-3 mb-6">
-              {/* Opción con Video Ad */}
+              {/* Opción con Video Ad (Si le quedan videos diarios) */}
               <button
+                disabled={dailyVideoClaims >= 10}
                 onClick={startVideoAd}
-                className="w-full p-4 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:border-amber-500 text-left transition-all flex items-center justify-between group"
+                className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between group ${
+                  dailyVideoClaims >= 10 
+                    ? 'opacity-50 cursor-not-allowed border-slate-800 bg-slate-950' 
+                    : 'border-amber-500/40 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:border-amber-500'
+                }`}
               >
                 <div>
-                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-500 text-slate-950">¡Recomendado! +30%</span>
-                  <h4 className="font-bold text-sm mt-2 text-amber-400">Ver Video Ad (5s)</h4>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-500 text-slate-950">
+                    {dailyVideoClaims >= 10 ? 'Límite diario alcanzado' : '¡Recomendado! +30%'}
+                  </span>
+                  <h4 className="font-bold text-sm mt-2 text-amber-400">Ver Video Ad (15s)</h4>
                   <p className="text-xs text-slate-400">Recibirás: <strong>{selectedNetwork.bonusReward.toFixed(5)} USDT</strong></p>
                 </div>
                 <PlaySquare className="text-amber-400 group-hover:scale-110 transition-transform" size={28} />
@@ -501,16 +543,16 @@ export default function FaucetDashboard() {
         </div>
       )}
 
-      {/* MODAL 3: REPRODUCTOR SIMULADO DE VIDEO AD (CUENTA REGRESIVA DE 5s) */}
+      {/* MODAL 3: REPRODUCTOR SIMULADO DE VIDEO AD (15 SEGUNDOS) */}
       {isAdPlaying && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
           <div className="w-full max-w-lg p-8 rounded-2xl border border-slate-800 bg-slate-950 text-center space-y-6 shadow-2xl">
             <div className="flex justify-between items-center">
               <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                Reproduciendo Anuncio Patrocinado...
+                Reproduciendo Video Patrocinado (15s)...
               </span>
               <span className="text-sm font-bold text-slate-400">
-                Cierre automático en <strong className="text-cyan-400">{adTimer}s</strong>
+                Cierre en <strong className="text-cyan-400">{adTimer}s</strong>
               </span>
             </div>
 
@@ -519,19 +561,19 @@ export default function FaucetDashboard() {
               <div className="absolute inset-0 bg-cyan-500/5 animate-pulse"></div>
               <PlaySquare className="text-cyan-400 mb-2 animate-bounce" size={48} />
               <h4 className="font-bold text-base text-slate-200">Patrocinador LabCoin Ads</h4>
-              <p className="text-xs text-slate-400 mt-1">Mira el video para reclamar tu recompensa con +30% extra</p>
+              <p className="text-xs text-slate-400 mt-1">Disfruta el video para acreditar tu +30% extra en USDT</p>
               
-              {/* Barra de progreso visual */}
+              {/* Barra de progreso visual adaptada a 15 segundos */}
               <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-800">
                 <div 
                   className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-1000"
-                  style={{ width: `${(adTimer / 5) * 100}%` }}
+                  style={{ width: `${(adTimer / 15) * 100}%` }}
                 ></div>
               </div>
             </div>
 
             <p className="text-xs text-slate-500">
-              No cierres esta ventana para asegurar que se procese tu bonificación del 30%.
+              Mantén abierta la ventana para asegurar tu bonificación diaria ({dailyVideoClaims + 1}/10).
             </p>
           </div>
         </div>
