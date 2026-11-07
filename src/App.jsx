@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { 
   Sun, Moon, Wallet, Clock, CheckCircle2, 
   ArrowUpRight, ShieldCheck, RefreshCw, Coins, 
-  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X, Cpu, Zap, Download, Activity, Sparkles 
+  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X, Cpu, Zap, Download, Activity, Sparkles, Flame 
 } from 'lucide-react';
 
 export default function FaucetDashboard() {
   const [darkMode, setDarkMode] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   
-  // Balance en USDT
+  // Balances
   const [balanceUSDT, setBalanceUSDT] = useState(24.5000);
+  const [miningPower, setMiningPower] = useState(125.50); // Puntos de Poder / Hashrate para farmear
 
   // Misiones diarias
   const [dailyVideoClaims, setDailyVideoClaims] = useState(5);
@@ -19,14 +20,14 @@ export default function FaucetDashboard() {
   const [ptcDone, setPtcDone] = useState(4);
   const [dailyBonusClaimed, setDailyBonusClaimed] = useState(false);
 
-  // Estado del Farming (Activado por defecto en Nivel 1)
+  // Estado del Farming
   const [farmingLevel, setFarmingLevel] = useState(1); 
   const [farmedEarnings, setFarmedEarnings] = useState(0.00015); 
 
   // Redes disponibles para USDT
   const networks = [
-    { id: 'sol', name: 'Solana (SPL)', fee: 'Ultra bajo', waitTime: 30, baseReward: 0.00050, bonusReward: 0.00065, icon: '🟣' },
-    { id: 'bnb', name: 'BNB Smart Chain (BEP-20)', fee: 'Muy bajo', waitTime: 45, baseReward: 0.00050, bonusReward: 0.00065, icon: '🟡' }
+    { id: 'sol', name: 'Solana (SPL)', fee: 'Ultra bajo', waitTime: 30, baseReward: 0.00020, bonusReward: 0.00030, icon: '🟣' },
+    { id: 'bnb', name: 'BNB Smart Chain (BEP-20)', fee: 'Muy bajo', waitTime: 45, baseReward: 0.00020, bonusReward: 0.00030, icon: '🟡' }
   ];
 
   const [selectedNetwork, setSelectedNetwork] = useState(networks[0]);
@@ -43,7 +44,7 @@ export default function FaucetDashboard() {
 
   // Historial
   const [claims, setClaims] = useState([
-    { id: 1, asset: 'USDT (Solana)', amount: '0.00065 USDT (+30%)', type: 'Faucet (Video Ad)', status: 'Completado', time: 'Hace 5 min' },
+    { id: 1, asset: 'USDT (Solana)', amount: '0.00030 USDT (+30%)', type: 'Faucet (Video Ad)', status: 'Completado', time: 'Hace 5 min' },
   ]);
 
   // Temporizadores
@@ -54,12 +55,13 @@ export default function FaucetDashboard() {
     }
   }, [timeLeft]);
 
-  // Simulación de acumulación pasiva sostenible (Nivel 1 = 1.0x, Nivel 2 = 1.2x)
+  // Simulación de acumulación pasiva basada en el Poder de Minería y Nivel (1.0x / 1.2x)
   useEffect(() => {
     let farmInterval;
-    if (farmingLevel > 0) {
+    if (farmingLevel > 0 && miningPower > 0) {
       farmInterval = setInterval(() => {
-        const baseRate = 0.0000002; // Tasa segura por segundo
+        // La tasa depende de cuántos puntos de poder tenga el usuario (más puntos = mayor rendimiento pasivo)
+        const baseRate = 0.00000001 * miningPower; 
         const multiplier = farmingLevel === 1 ? 1.0 : 1.2;
         const currentRate = baseRate * multiplier;
         
@@ -67,7 +69,7 @@ export default function FaucetDashboard() {
       }, 1000);
     }
     return () => clearInterval(farmInterval);
-  }, [farmingLevel]);
+  }, [farmingLevel, miningPower]);
 
   // Temporizador de Video Ad
   useEffect(() => {
@@ -113,7 +115,8 @@ export default function FaucetDashboard() {
   const executeFinalClaim = (type) => {
     setIsClaiming(true);
     const earnedAmount = type === 'bonus' ? selectedNetwork.bonusReward : selectedNetwork.baseReward;
-    const typeLabel = type === 'bonus' ? 'Faucet (Video Ad +30%)' : 'Faucet Base';
+    const powerReward = 10.00; // Ganas 10 puntos de poder al reclamar el faucet
+    const typeLabel = type === 'bonus' ? 'Faucet (Video Ad + Power)' : 'Faucet Base + Power';
 
     if (type === 'bonus') setDailyVideoClaims(prev => prev + 1);
     setDailyTotalClaims(prev => prev + 1);
@@ -122,8 +125,9 @@ export default function FaucetDashboard() {
       setIsClaiming(false);
       setTimeLeft(selectedNetwork.waitTime);
       setBalanceUSDT(prev => prev + earnedAmount);
+      setMiningPower(prev => prev + powerReward); // Suma poder para el farming
       setClaims(prev => [
-        { id: Date.now(), asset: `USDT (${selectedNetwork.name.split(' ')[0]})`, amount: `${earnedAmount.toFixed(5)} USDT`, type: typeLabel, status: 'Completado', time: 'Ahora mismo' },
+        { id: Date.now(), asset: `USDT (${selectedNetwork.name.split(' ')[0]})`, amount: `${earnedAmount.toFixed(5)} USDT (+10 Puntos)`, type: typeLabel, status: 'Completado', time: 'Ahora mismo' },
         ...prev
       ]);
     }, 1000);
@@ -138,10 +142,12 @@ export default function FaucetDashboard() {
 
   const executeBonusClaim = () => {
     setDailyBonusClaimed(true);
-    const bonusAmount = 0.00500;
+    const bonusAmount = 0.00200;
+    const powerBonus = 25.00;
     setBalanceUSDT(prev => prev + bonusAmount);
+    setMiningPower(prev => prev + powerBonus);
     setClaims(prev => [
-      { id: Date.now(), asset: 'USDT (Global)', amount: `${bonusAmount.toFixed(5)} USDT`, type: 'Bono Diario (Video Ad)', status: 'Completado', time: 'Ahora mismo' },
+      { id: Date.now(), asset: 'USDT (Global)', amount: `${bonusAmount.toFixed(5)} USDT (+25 Puntos)`, type: 'Bono Diario (Video Ad)', status: 'Completado', time: 'Ahora mismo' },
       ...prev
     ]);
   };
@@ -154,7 +160,7 @@ export default function FaucetDashboard() {
 
   const executePtcClaim = () => {
     setPtcDone(prev => prev + 1);
-    setBalanceUSDT(prev => prev + 0.0005);
+    setMiningPower(prev => prev + 5.00); // Ganas 5 puntos por anuncio PTC
   };
 
   const triggerShortlinkView = () => {
@@ -165,7 +171,7 @@ export default function FaucetDashboard() {
 
   const executeShortlinkClaim = () => {
     setShortlinksDone(prev => prev + 1);
-    setBalanceUSDT(prev => prev + 0.001);
+    setMiningPower(prev => prev + 15.00); // Ganas 15 puntos por shortlink
   };
 
   const toggleFarmingLevel = (level) => {
@@ -178,7 +184,7 @@ export default function FaucetDashboard() {
     setBalanceUSDT(prev => prev + collected);
     setFarmedEarnings(0);
     setClaims(prev => [
-      { id: Date.now(), asset: 'USDT (Farming Bot)', amount: `${collected.toFixed(5)} USDT`, type: 'Cosecha de Farming', status: 'Completado', time: 'Ahora mismo' },
+      { id: Date.now(), asset: 'USDT (Farming Bot)', amount: `${collected.toFixed(6)} USDT`, type: 'Cosecha de Poder', status: 'Completado', time: 'Ahora mismo' },
       ...prev
     ]);
   };
@@ -218,8 +224,8 @@ export default function FaucetDashboard() {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${darkMode ? 'bg-slate-800 text-emerald-400 border border-emerald-500/30' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
-            <ShieldCheck size={14} /> Redes: Solana & BEP-20
+          <div className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${darkMode ? 'bg-slate-800 text-cyan-400 border border-cyan-500/30' : 'bg-cyan-50 text-cyan-700 border border-cyan-200'}`}>
+            <Flame size={14} className="text-amber-400" /> Poder: {miningPower.toFixed(2)} Pts
           </div>
           
           <button 
@@ -275,26 +281,27 @@ export default function FaucetDashboard() {
                 </div>
               </div>
 
-              {/* Estado de Farming en Dashboard */}
+              {/* Poder de Minería en Dashboard */}
               <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Estado Bot de Farming</p>
+                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Poder de Minería Activo</p>
                 <div className="flex items-center gap-2 mt-3">
-                  <span className={`w-3 h-3 rounded-full ${farmingLevel > 0 ? 'bg-cyan-400 animate-pulse' : 'bg-amber-500'}`}></span>
-                  <span className="font-bold text-sm">{farmingLevel > 0 ? `Activo (Nivel ${farmingLevel} - ${farmingLevel === 1 ? '1.0x' : '1.2x'})` : 'Inactivo'}</span>
+                  <Flame className="text-amber-400 animate-bounce" size={20} />
+                  <span className="font-extrabold text-xl text-cyan-400">{miningPower.toFixed(2)} <span className="text-xs font-normal text-slate-400">Pts</span></span>
                 </div>
-                <div className="mt-3 flex items-center justify-between text-xs">
-                  <span className={darkMode ? 'text-slate-400' : 'text-slate-500'}>Cosecha acumulada:</span>
-                  <strong className="text-cyan-400">{farmedEarnings.toFixed(6)} USDT</strong>
-                </div>
+                <p className={`mt-2 text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Gana más puntos haciendo faucets y tareas</p>
               </div>
 
+              {/* Estado de Farming */}
               <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Bono Diario</p>
+                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Cosecha del Bot</p>
                 <div className="flex items-center gap-2 mt-3">
-                  <span className={`w-3 h-3 rounded-full ${dailyBonusClaimed ? 'bg-slate-500' : 'bg-amber-500 animate-pulse'}`}></span>
-                  <span className="font-bold text-sm">{dailyBonusClaimed ? 'Reclamado hoy' : 'Disponible'}</span>
+                  <span className={`w-3 h-3 rounded-full ${farmingLevel > 0 ? 'bg-cyan-400 animate-pulse' : 'bg-amber-500'}`}></span>
+                  <span className="font-bold text-sm">{farmingLevel > 0 ? `Activo (Nivel ${farmingLevel})` : 'Inactivo'}</span>
                 </div>
-                <p className={`mt-3 text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Renovación diaria</p>
+                <div className="mt-3 flex items-center justify-between text-xs">
+                  <span className={darkMode ? 'text-slate-400' : 'text-slate-500'}>Acumulado:</span>
+                  <strong className="text-cyan-400">{farmedEarnings.toFixed(6)} USDT</strong>
+                </div>
               </div>
             </div>
 
@@ -331,10 +338,10 @@ export default function FaucetDashboard() {
         {activeTab === 'faucet' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <Coins className="text-cyan-400" size={20} /> Reclamo Faucet de USDT
+              <Coins className="text-cyan-400" size={20} /> Reclamo Faucet de USDT & Poder
             </h3>
             <p className={`text-xs mb-6 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-              Gana <strong className="text-emerald-400">0.00050 USDT</strong> base o mira un video de 15s para obtener un <strong className="text-amber-400">+30% extra</strong>.
+              Gana USDT y <strong className="text-amber-400">+10 Puntos de Poder</strong> para acelerar tu bot de farmeo pasivo.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -354,8 +361,8 @@ export default function FaucetDashboard() {
                   </div>
                   <div className="mt-4">
                     <h4 className="font-bold text-sm">{net.name}</h4>
-                    <p className="text-sm font-bold mt-1 text-emerald-400">Normal: {net.baseReward.toFixed(5)} USDT</p>
-                    <p className="text-xs font-semibold text-amber-400 mt-0.5">Con Video (15s): {net.bonusReward.toFixed(5)} USDT (+30%)</p>
+                    <p className="text-sm font-bold mt-1 text-emerald-400">Recompensa: {net.baseReward.toFixed(5)} USDT</p>
+                    <p className="text-xs font-semibold text-amber-400 mt-0.5">+10 Puntos de Poder por Claim</p>
                   </div>
                 </button>
               ))}
@@ -381,13 +388,13 @@ export default function FaucetDashboard() {
                 {isClaiming ? <><RefreshCw className="animate-spin" size={16} /> Procesando...</> : 
                  dailyTotalClaims >= 50 ? 'Límite diario alcanzado (50/50)' :
                  timeLeft > 0 ? <><Clock size={16} /> Espera {timeLeft}s</> : 
-                 <><CheckCircle2 size={16} /> Claim Faucet</>}
+                 <><CheckCircle2 size={16} /> Claim Faucet & Poder</>}
               </button>
             </div>
           </div>
         )}
 
-        {/* VISTA 3: PESTAÑA DE FARMING SOSTENIBLE (1.0x / 1.2x) */}
+        {/* VISTA 3: PESTAÑA DE FARMING CON CAJA INTERACTIVA Y PODER */}
         {activeTab === 'farming' && (
           <div className={`p-8 rounded-2xl border space-y-8 relative overflow-hidden ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             
@@ -405,7 +412,7 @@ export default function FaucetDashboard() {
                 <div>
                   <h3 className="text-xl font-extrabold flex items-center gap-2">
                     LabCoin Auto-Farming Bot 
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">Modo Test Libre</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">Poder: {miningPower.toFixed(1)} Pts</span>
                   </h3>
                   <p className={`text-xs mt-0.5 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
                     Estado: <strong className="text-cyan-400">{farmingLevel === 0 ? 'Inactivo' : `Nivel ${farmingLevel} (${farmingLevel === 1 ? '1.0x' : '1.2x'}) Operativo`}</strong>
@@ -460,7 +467,7 @@ export default function FaucetDashboard() {
                     {farmingLevel > 0 ? (
                       <>
                         <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
-                        Minando USDT (Multiplicador {farmingLevel === 1 ? '1.0x' : '1.2x'})...
+                        Minando con {miningPower.toFixed(1)} Pts de Poder ({farmingLevel === 1 ? '1.0x' : '1.2x'})...
                       </>
                     ) : (
                       <span className="text-slate-500">Bot de Minería en Pausa</span>
@@ -468,8 +475,8 @@ export default function FaucetDashboard() {
                   </h4>
                   <p className={`text-xs mt-1 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
                     {farmingLevel > 0 
-                      ? `Extracción pasiva sostenible (${farmingLevel === 1 ? '1.0x' : '1.2x'})`
-                      : 'Activa un nivel de minería abajo para comenzar la extracción.'}
+                      ? 'El rendimiento escala automáticamente según tu poder de actividad.'
+                      : 'Activa un nivel de minería abajo para comenzar.'}
                   </p>
                 </div>
 
@@ -482,7 +489,7 @@ export default function FaucetDashboard() {
               </div>
             </div>
 
-            {/* Selector de Niveles (Tasas Sostenibles) */}
+            {/* Selector de Niveles */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
               
               {/* NIVEL 1 (1.0x) */}
@@ -494,11 +501,11 @@ export default function FaucetDashboard() {
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-xs font-bold px-2.5 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">FARMING NIVEL 1</span>
-                    <span className="text-xs text-cyan-400 font-mono font-bold">Poder: 1.0x (Sostenible)</span>
+                    <span className="text-xs text-cyan-400 font-mono font-bold">Multiplicador: 1.0x</span>
                   </div>
-                  <h4 className="font-bold text-base">Tasa Base Segura</h4>
+                  <h4 className="font-bold text-base">Núcleo Base Sostenible</h4>
                   <p className={`text-xs mt-2 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                    Genera ~0.0007 USDT por hora sin arriesgar la liquidez del proyecto.
+                    Utiliza tu poder acumulado para minar pasivamente USDT.
                   </p>
                 </div>
 
@@ -510,7 +517,7 @@ export default function FaucetDashboard() {
                       : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                   }`}
                 >
-                  {farmingLevel === 1 ? '⚡ Nivel 1 (1.0x) Activo' : 'Activar Nivel 1 (1.0x)'}
+                  {farmingLevel === 1 ? '⚡ Nivel 1 (1.0x) Activo' : 'Activar Nivel 1'}
                 </button>
               </div>
 
@@ -525,11 +532,11 @@ export default function FaucetDashboard() {
                     <span className="text-xs font-bold px-2.5 py-1 rounded bg-cyan-400/10 text-cyan-300 border border-cyan-400/20 flex items-center gap-1">
                       <Activity size={14} /> NIVEL 2 (ÉLITE)
                     </span>
-                    <span className="text-xs text-cyan-300 font-mono font-bold">Poder: 1.2x (+20%)</span>
+                    <span className="text-xs text-cyan-300 font-mono font-bold">Multiplicador: 1.2x (+20%)</span>
                   </div>
-                  <h4 className="font-bold text-base">Núcleo Acelerado Seguro</h4>
+                  <h4 className="font-bold text-base">Acelerador de Poder</h4>
                   <p className={`text-xs mt-2 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                    Genera ~0.00086 USDT por hora para usuarios muy activos.
+                    Incrementa un 20% extra la conversión de tus puntos de poder a USDT.
                   </p>
                 </div>
 
@@ -541,7 +548,7 @@ export default function FaucetDashboard() {
                       : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                   }`}
                 >
-                  {farmingLevel === 2 ? '⚡ Nivel 2 (1.2x) Activo' : 'Activar Nivel 2 (1.2x)'}
+                  {farmingLevel === 2 ? '⚡ Nivel 2 (1.2x) Activo' : 'Activar Nivel 2'}
                 </button>
               </div>
 
@@ -549,19 +556,19 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 4: SHORTLINKS */}
+        {/* VISTA 4: SHORTLINKS (Dan +15 Puntos) */}
         {activeTab === 'shortlinks' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
               <span className="flex items-center gap-2"><ExternalLink className="text-cyan-400" size={20} /> Enlaces Cortos (Shortlinks)</span>
-              <span className="text-xs font-normal text-cyan-400">Progreso hoy: {shortlinksDone}/10</span>
+              <span className="text-xs font-normal text-amber-400">+15 Puntos de Poder por enlace</span>
             </h3>
             <div className="space-y-3">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className={`p-4 rounded-xl border flex items-center justify-between ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                   <div>
                     <h4 className="font-bold text-sm">Shortlink Wall #{i}</h4>
-                    <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Recompensa: 0.001 USDT</p>
+                    <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Recompensa: +15 Puntos de Poder</p>
                   </div>
                   <button onClick={triggerShortlinkView} className="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all">
                     Visitar Enlace
@@ -572,19 +579,19 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 5: PTC */}
+        {/* VISTA 5: PTC (Dan +5 Puntos) */}
         {activeTab === 'ptc' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
               <span className="flex items-center gap-2"><MousePointerClick className="text-cyan-400" size={20} /> Anuncios Patrocinados (PTC)</span>
-              <span className="text-xs font-normal text-purple-400">Progreso hoy: {ptcDone}/15</span>
+              <span className="text-xs font-normal text-amber-400">+5 Puntos de Poder por anuncio</span>
             </h3>
             <div className="space-y-3">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className={`p-4 rounded-xl border flex items-center justify-between ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                   <div>
                     <h4 className="font-bold text-sm">Anuncio PTC #{i} (10s)</h4>
-                    <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Recompensa: 0.0005 USDT</p>
+                    <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Recompensa: +5 Puntos de Poder</p>
                   </div>
                   <button onClick={triggerPtcView} className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all">
                     Ver Anuncio
@@ -599,10 +606,10 @@ export default function FaucetDashboard() {
         {activeTab === 'tasks' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <ListTodo className="text-cyan-400" size={20} /> Muro de Tareas USDT
+              <ListTodo className="text-cyan-400" size={20} /> Muro de Tareas Especiales
             </h3>
             <div className={`p-6 rounded-xl border text-center ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-              <p className={`text-sm ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>Completa ofertas especiales para recibir pagos directos en USDT.</p>
+              <p className={`text-sm ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>Completa ofertas para recibir grandes cantidades de Puntos de Poder y USDT.</p>
               <button className="mt-4 px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-bold text-sm">
                 Ver Tareas
               </button>
@@ -614,9 +621,9 @@ export default function FaucetDashboard() {
         {activeTab === 'bonus' && (
           <div className={`p-6 rounded-2xl border text-center ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <Gift className="mx-auto text-amber-400 mb-2 animate-bounce" size={44} />
-            <h3 className="text-xl font-bold">Bono Diario en USDT</h3>
+            <h3 className="text-xl font-bold">Bono Diario en USDT & Poder</h3>
             <p className={`text-xs mt-1 max-w-md mx-auto ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-              Mira un breve video de 15 segundos para reclamar tu bono diario de <strong className="text-emerald-400">0.00500 USDT</strong>.
+              Mira un breve video para reclamar tu bono diario de <strong className="text-emerald-400">0.002 USDT</strong> y <strong className="text-amber-400">+25 Puntos de Poder</strong>.
             </p>
             <button 
               disabled={dailyBonusClaimed}
@@ -627,21 +634,21 @@ export default function FaucetDashboard() {
                   : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-orange-500/20 active:scale-95'
               }`}
             >
-              {dailyBonusClaimed ? '✓ Bono Diario Reclamado' : '▶ Ver Video & Reclamar Bono USDT'}
+              {dailyBonusClaimed ? '✓ Bono Diario Reclamado' : '▶ Ver Video & Reclamar Bono'}
             </button>
           </div>
         )}
 
         {/* Tabla de Historial */}
         <div className={`p-6 rounded-2xl border overflow-hidden ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-          <h3 className="text-lg font-bold mb-4">Historial de Transacciones USDT</h3>
+          <h3 className="text-lg font-bold mb-4">Historial de Transacciones</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
                 <tr className={`border-b ${darkMode ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-600'}`}>
                   <th className="py-3 px-4 font-semibold">Activo / Red</th>
                   <th className="py-3 px-4 font-semibold">Tipo</th>
-                  <th className="py-3 px-4 font-semibold">Monto</th>
+                  <th className="py-3 px-4 font-semibold">Monto / Recompensa</th>
                   <th className="py-3 px-4 font-semibold">Estado</th>
                   <th className="py-3 px-4 font-semibold text-right">Tiempo</th>
                 </tr>
@@ -706,7 +713,7 @@ export default function FaucetDashboard() {
           <div className={`w-full max-w-md p-6 rounded-2xl border shadow-2xl ${darkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'}`}>
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-lg font-bold flex items-center gap-2">
-                <PlaySquare className="text-amber-400" size={22} /> ¡Gana un 30% Extra!
+                <PlaySquare className="text-amber-400" size={22} /> ¡Gana un 30% Extra & Poder!
               </h3>
               <button onClick={() => setShowAdModal(false)} className="text-slate-400"><X size={20} /></button>
             </div>
@@ -718,7 +725,7 @@ export default function FaucetDashboard() {
                 <div>
                   <span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-500 text-slate-950">¡Recomendado! +30%</span>
                   <h4 className="font-bold text-sm mt-2 text-amber-400">Ver Video Ad (15s)</h4>
-                  <p className="text-xs text-slate-400">Recibirás: <strong>{selectedNetwork.bonusReward.toFixed(5)} USDT</strong></p>
+                  <p className="text-xs text-slate-400">Recibirás: <strong>{selectedNetwork.bonusReward.toFixed(5)} USDT + Poder</strong></p>
                 </div>
                 <PlaySquare className="text-amber-400" size={28} />
               </button>
@@ -728,7 +735,7 @@ export default function FaucetDashboard() {
               >
                 <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">Estándar</span>
                 <h4 className="font-bold text-sm mt-2">Reclamar sin Ver Video</h4>
-                <p className="text-xs text-slate-400">Recibirás: {selectedNetwork.baseReward.toFixed(5)} USDT</p>
+                <p className="text-xs text-slate-400">Recibirás: {selectedNetwork.baseReward.toFixed(5)} USDT + Poder</p>
               </button>
             </div>
             <button onClick={() => setShowAdModal(false)} className="w-full py-2.5 rounded-xl font-bold text-xs border border-slate-700">Cancelar</button>
@@ -749,7 +756,7 @@ export default function FaucetDashboard() {
             <div className="w-full h-48 rounded-xl bg-gradient-to-br from-slate-900 to-slate-900 border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
               <PlaySquare className="text-cyan-400 mb-2 animate-bounce" size={48} />
               <h4 className="font-bold text-base text-slate-200">LabCoin Patrocinios</h4>
-              <p className="text-xs text-slate-400 mt-1">Completa el tiempo para sumar tu progreso y recompensa</p>
+              <p className="text-xs text-slate-400 mt-1">Completa el tiempo para sumar tu poder de minería</p>
               <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-800">
                 <div className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-1000" style={{ width: `${(adTimer / 15) * 100}%` }}></div>
               </div>
