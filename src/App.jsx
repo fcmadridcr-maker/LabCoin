@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Sun, Moon, Wallet, Clock, CheckCircle2, 
   ArrowUpRight, ShieldCheck, RefreshCw, Coins, 
-  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X, Cpu, Zap, CheckCircle, Award, Download 
+  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X, Cpu, Zap, Download, Activity 
 } from 'lucide-react';
 
 export default function FaucetDashboard() {
@@ -12,16 +12,16 @@ export default function FaucetDashboard() {
   // Balance en USDT
   const [balanceUSDT, setBalanceUSDT] = useState(24.5000);
 
-  // Misiones diarias del usuario
-  const [dailyVideoClaims, setDailyVideoClaims] = useState(12); // Para probar Nivel 2 (necesita 20)
-  const [dailyTotalClaims, setDailyTotalClaims] = useState(25);
-  const [shortlinksDone, setShortlinksDone] = useState(10); // Para probar Nivel 2 (necesita 10)
-  const [ptcDone, setPtcDone] = useState(15); // Para probar Nivel 2 (necesita 15)
+  // Misiones diarias
+  const [dailyVideoClaims, setDailyVideoClaims] = useState(5);
+  const [dailyTotalClaims, setDailyTotalClaims] = useState(12);
+  const [shortlinksDone, setShortlinksDone] = useState(3);
+  const [ptcDone, setPtcDone] = useState(4);
   const [dailyBonusClaimed, setDailyBonusClaimed] = useState(false);
 
-  // Estado del sistema de Farming
-  const [farmingLevel, setFarmingLevel] = useState(0); // 0 = Inactivo, 1 = Nivel 1, 2 = Nivel 2
-  const [farmedEarnings, setFarmedEarnings] = useState(0.00250); // USDT acumulados listos para recoger
+  // Estado del Farming (Activado por defecto en Nivel 1 para pruebas)
+  const [farmingLevel, setFarmingLevel] = useState(1); 
+  const [farmedEarnings, setFarmedEarnings] = useState(0.01250); 
 
   // Redes disponibles para USDT
   const networks = [
@@ -41,7 +41,7 @@ export default function FaucetDashboard() {
   const [isAdPlaying, setIsAdPlaying] = useState(false);
   const [activeAdType, setActiveAdType] = useState('faucet');
 
-  // Historial de reclamos
+  // Historial
   const [claims, setClaims] = useState([
     { id: 1, asset: 'USDT (Solana)', amount: '0.00065 USDT (+30%)', type: 'Faucet (Video Ad)', status: 'Completado', time: 'Hace 5 min' },
   ]);
@@ -54,15 +54,14 @@ export default function FaucetDashboard() {
     }
   }, [timeLeft]);
 
-  // Simulación de acumulación pasiva según el nivel activo
+  // Simulación de acumulación pasiva del bot
   useEffect(() => {
     let farmInterval;
     if (farmingLevel > 0) {
       farmInterval = setInterval(() => {
-        // Tasa de ganancia por segundo según el nivel (Nivel 1: tasa baja, Nivel 2: tasa 2.5x más rápida)
-        const rate = farmingLevel === 1 ? 0.00001 : 0.000025;
+        const rate = farmingLevel === 1 ? 0.00002 : 0.00005;
         setFarmedEarnings(prev => prev + rate);
-      }, 2000);
+      }, 1000);
     }
     return () => clearInterval(farmInterval);
   }, [farmingLevel]);
@@ -166,23 +165,10 @@ export default function FaucetDashboard() {
     setBalanceUSDT(prev => prev + 0.001);
   };
 
-  // Verificación de Requisitos para Niveles de Farming
-  const canActivateLevel1 = dailyVideoClaims >= 10 && shortlinksDone >= 5 && ptcDone >= 5;
-  const canActivateLevel2 = dailyVideoClaims >= 20 && shortlinksDone >= 10 && ptcDone >= 15;
-
-  const activateFarming = (level) => {
-    if (level === 1 && !canActivateLevel1) {
-      alert("No cumples los requisitos del Nivel 1 (10 Videos, 5 Shortlinks, 5 PTC).");
-      return;
-    }
-    if (level === 2 && !canActivateLevel2) {
-      alert("No cumples los requisitos del Nivel 2 Élite (20 Videos, 10 Shortlinks, 15 PTC).");
-      return;
-    }
-    setFarmingLevel(level);
+  const toggleFarmingLevel = (level) => {
+    setFarmingLevel(farmingLevel === level ? 0 : level);
   };
 
-  // Botón de Recoger Cosecha (Claim Farm)
   const handleClaimFarm = () => {
     if (farmedEarnings <= 0) return;
     const collected = farmedEarnings;
@@ -197,6 +183,18 @@ export default function FaucetDashboard() {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
       
+      {/* Estilos CSS para la animación de la línea neón estilo reanimador */}
+      <style>{`
+        @keyframes neonScan {
+          0% { transform: translateX(-100%); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translateX(100%); opacity: 0; }
+        }
+        .neon-line-anim {
+          animation: neonScan 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+      `}</style>
+
       {/* Barra Superior */}
       <header className={`border-b px-6 py-4 flex justify-between items-center ${darkMode ? 'border-slate-800 bg-slate-900/50' : 'border-slate-200 bg-white/50'} backdrop-blur-md sticky top-0 z-50`}>
         <div className="flex items-center gap-3">
@@ -246,7 +244,7 @@ export default function FaucetDashboard() {
                   : 'border-transparent text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Icon size={16} /> {tab.label} {tab.id === 'farming' && farmingLevel > 0 && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>}
+              <Icon size={16} /> {tab.label} {tab.id === 'farming' && farmingLevel > 0 && <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>}
             </button>
           );
         })}
@@ -271,22 +269,22 @@ export default function FaucetDashboard() {
               <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
                 <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Estado Bot de Farming</p>
                 <div className="flex items-center gap-2 mt-3">
-                  <span className={`w-3 h-3 rounded-full ${farmingLevel > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></span>
+                  <span className={`w-3 h-3 rounded-full ${farmingLevel > 0 ? 'bg-cyan-400 animate-pulse' : 'bg-amber-500'}`}></span>
                   <span className="font-bold text-sm">{farmingLevel > 0 ? `Activo (Nivel ${farmingLevel})` : 'Inactivo'}</span>
                 </div>
                 <div className="mt-3 flex items-center justify-between text-xs">
                   <span className={darkMode ? 'text-slate-400' : 'text-slate-500'}>Cosecha acumulada:</span>
-                  <strong className="text-emerald-400">{farmedEarnings.toFixed(5)} USDT</strong>
+                  <strong className="text-cyan-400">{farmedEarnings.toFixed(5)} USDT</strong>
                 </div>
               </div>
 
               <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Progreso de Misiones</p>
-                <div className="mt-3 space-y-1 text-xs">
-                  <div className="flex justify-between"><span>Videos:</span> <strong className="text-amber-400">{dailyVideoClaims}/20</strong></div>
-                  <div className="flex justify-between"><span>Shortlinks:</span> <strong className="text-cyan-400">{shortlinksDone}/10</strong></div>
-                  <div className="flex justify-between"><span>PTC:</span> <strong className="text-purple-400">{ptcDone}/15</strong></div>
+                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Bono Diario</p>
+                <div className="flex items-center gap-2 mt-3">
+                  <span className={`w-3 h-3 rounded-full ${dailyBonusClaimed ? 'bg-slate-500' : 'bg-amber-500 animate-pulse'}`}></span>
+                  <span className="font-bold text-sm">{dailyBonusClaimed ? 'Reclamado hoy' : 'Disponible'}</span>
                 </div>
+                <p className={`mt-3 text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Renovación diaria</p>
               </div>
             </div>
 
@@ -379,27 +377,37 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 3: PESTAÑA DE FARMING CON NIVELES Y BOTÓN DE RECOGER */}
+        {/* VISTA 3: PESTAÑA DE FARMING CON ANIMACIÓN DE LÍNEA NEÓN */}
         {activeTab === 'farming' && (
-          <div className={`p-8 rounded-2xl border space-y-6 ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
+          <div className={`p-8 rounded-2xl border space-y-6 relative overflow-hidden ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
+            
+            {/* LÍNEA NEÓN ANIMADA TIPO REANIMADOR (Efecto de escaneo continuo azul neón) */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-slate-800 overflow-hidden">
+              <div className="absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-cyan-400 to-transparent neon-line-anim shadow-[0_0_15px_#22d3ee]"></div>
+            </div>
+
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 border-b pb-6 border-slate-800">
               <div className="flex items-center gap-4 text-left">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                  <Cpu className="text-slate-950 animate-pulse" size={32} />
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-cyan-500/30 relative">
+                  <div className="absolute inset-0 rounded-2xl bg-cyan-400/20 animate-ping"></div>
+                  <Cpu className="text-slate-950 z-10" size={32} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-extrabold">LabCoin Auto-Farming Bot</h3>
+                  <h3 className="text-xl font-extrabold flex items-center gap-2">
+                    LabCoin Auto-Farming Bot 
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">Modo Test Libre</span>
+                  </h3>
                   <p className={`text-xs mt-0.5 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                    Estado actual: <strong className="text-emerald-400">{farmingLevel === 0 ? 'Inactivo' : `Nivel ${farmingLevel} Activo`}</strong> (Se reinicia a las 00:00 UTC)
+                    Estado: <strong className="text-cyan-400">{farmingLevel === 0 ? 'Inactivo' : `Nivel ${farmingLevel} Operativo`}</strong> (Reinicia a las 00:00 UTC)
                   </p>
                 </div>
               </div>
 
-              {/* Botón de Recoger Cosecha (Claim Farm) */}
+              {/* Botón de Recoger Cosecha */}
               <div className={`p-4 rounded-xl border flex items-center gap-4 ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                 <div>
                   <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Cosecha Disponible:</p>
-                  <p className="text-lg font-extrabold text-emerald-400">{farmedEarnings.toFixed(5)} USDT</p>
+                  <p className="text-lg font-extrabold text-cyan-400">{farmedEarnings.toFixed(5)} USDT</p>
                 </div>
                 <button
                   disabled={farmedEarnings <= 0}
@@ -407,7 +415,7 @@ export default function FaucetDashboard() {
                   className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 shadow-lg ${
                     farmedEarnings <= 0 
                       ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
-                      : 'bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 text-slate-950 active:scale-95 cursor-pointer'
+                      : 'bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 text-slate-950 active:scale-95 cursor-pointer shadow-cyan-500/20'
                   }`}
                 >
                   <Download size={14} /> Recoger
@@ -415,94 +423,66 @@ export default function FaucetDashboard() {
               </div>
             </div>
 
-            {/* Tarjetas de Niveles de Farming */}
+            {/* Selector de Niveles de Prueba */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
               
               {/* NIVEL 1 */}
               <div className={`p-6 rounded-2xl border flex flex-col justify-between space-y-4 ${
                 farmingLevel === 1 
-                  ? (darkMode ? 'border-cyan-500 bg-cyan-500/10' : 'border-cyan-600 bg-cyan-50') 
+                  ? (darkMode ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/5' : 'border-cyan-600 bg-cyan-50') 
                   : (darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200')
               }`}>
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-xs font-bold px-2.5 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">FARMING NIVEL 1</span>
-                    <span className="text-xs text-slate-400">Poder: 0.00010 USDT/h</span>
+                    <span className="text-xs text-cyan-400 font-mono">0.00072 USDT/h</span>
                   </div>
-                  <h4 className="font-bold text-base">Requisitos Diarios:</h4>
-                  <ul className="mt-3 space-y-2 text-xs">
-                    <li className="flex justify-between items-center">
-                      <span>Videos Ads (10):</span>
-                      <strong className={dailyVideoClaims >= 10 ? 'text-emerald-400' : 'text-amber-400'}>{dailyVideoClaims} / 10</strong>
-                    </li>
-                    <li className="flex justify-between items-center">
-                      <span>Shortlinks (5):</span>
-                      <strong className={shortlinksDone >= 5 ? 'text-emerald-400' : 'text-amber-400'}>{shortlinksDone} / 5</strong>
-                    </li>
-                    <li className="flex justify-between items-center">
-                      <span>Anuncios PTC (5):</span>
-                      <strong className={ptcDone >= 5 ? 'text-emerald-400' : 'text-amber-400'}>{ptcDone} / 5</strong>
-                    </li>
-                  </ul>
+                  <h4 className="font-bold text-base">Tasa Base de Minería Pasiva</h4>
+                  <p className={`text-xs mt-2 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                    El bot opera de forma continua generando fracciones de USDT directo a tu tanque de cosecha.
+                  </p>
                 </div>
 
                 <button
-                  disabled={!canActivateLevel1}
-                  onClick={() => activateFarming(1)}
-                  className={`w-full py-3 rounded-xl font-bold text-xs transition-all ${
+                  onClick={() => toggleFarmingLevel(1)}
+                  className={`w-full py-3 rounded-xl font-bold text-xs transition-all cursor-pointer shadow-md ${
                     farmingLevel === 1 
-                      ? 'bg-emerald-500 text-slate-950' 
-                      : canActivateLevel1 
-                        ? 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 cursor-pointer' 
-                        : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                      ? 'bg-cyan-500 text-slate-950 shadow-cyan-500/20' 
+                      : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                   }`}
                 >
-                  {farmingLevel === 1 ? '✓ Nivel 1 Activo' : canActivateLevel1 ? 'Activar Nivel 1' : 'Requisitos Incompletos'}
+                  {farmingLevel === 1 ? '⚡ Nivel 1 Activo (Minando)' : 'Activar Nivel 1'}
                 </button>
               </div>
 
-              {/* NIVEL 2 (ÉLITE) */}
+              {/* NIVEL 2 ÉLITE */}
               <div className={`p-6 rounded-2xl border flex flex-col justify-between space-y-4 ${
                 farmingLevel === 2 
-                  ? (darkMode ? 'border-amber-500 bg-amber-500/10' : 'border-amber-600 bg-amber-50') 
+                  ? (darkMode ? 'border-cyan-400 bg-cyan-400/10 shadow-lg shadow-cyan-400/5' : 'border-cyan-600 bg-cyan-50') 
                   : (darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200')
               }`}>
                 <div>
                   <div className="flex justify-between items-center mb-3">
-                    <span className="text-xs font-bold px-2.5 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1">
-                      <Award size={14} /> NIVEL 2 (ÉLITE +150%)
+                    <span className="text-xs font-bold px-2.5 py-1 rounded bg-cyan-400/10 text-cyan-300 border border-cyan-400/20 flex items-center gap-1">
+                      <Activity size={14} /> NIVEL 2 (ÉLITE 2.5X)
                     </span>
-                    <span className="text-xs text-amber-400">Poder: 0.00025 USDT/h</span>
+                    <span className="text-xs text-cyan-300 font-mono">0.00180 USDT/h</span>
                   </div>
-                  <h4 className="font-bold text-base">Requisitos Avanzados:</h4>
-                  <ul className="mt-3 space-y-2 text-xs">
-                    <li className="flex justify-between items-center">
-                      <span>Videos Ads (20):</span>
-                      <strong className={dailyVideoClaims >= 20 ? 'text-emerald-400' : 'text-amber-400'}>{dailyVideoClaims} / 20</strong>
-                    </li>
-                    <li className="flex justify-between items-center">
-                      <span>Shortlinks (10):</span>
-                      <strong className={shortlinksDone >= 10 ? 'text-emerald-400' : 'text-amber-400'}>{shortlinksDone} / 10</strong>
-                    </li>
-                    <li className="flex justify-between items-center">
-                      <span>Anuncios PTC (15):</span>
-                      <strong className={ptcDone >= 15 ? 'text-emerald-400' : 'text-amber-400'}>{ptcDone} / 15</strong>
-                    </li>
-                  </ul>
+                  <h4 className="font-bold text-base">Potencia Máxima Acelerada</h4>
+                  <p className={`text-xs mt-2 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Duplica la velocidad de acumulación pasiva con el núcleo de minería avanzado de LabCoin.
+                  </p>
                 </div>
 
                 <button
-                  disabled={!canActivateLevel2}
-                  onClick={() => activateFarming(2)}
-                  className={`w-full py-3 rounded-xl font-bold text-xs transition-all ${
+                  onClick={() => toggleFarmingLevel(2)}
+                  className={`w-full py-3 rounded-xl font-bold text-xs transition-all cursor-pointer shadow-md ${
                     farmingLevel === 2 
-                      ? 'bg-amber-500 text-slate-950' 
-                      : canActivateLevel2 
-                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 text-slate-950 cursor-pointer shadow-lg shadow-orange-500/20' 
-                        : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                      ? 'bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 shadow-cyan-400/20' 
+                      : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                   }`}
                 >
-                  {farmingLevel === 2 ? '✓ Nivel 2 Élite Activo' : canActivateLevel2 ? 'Activar Nivel 2 Élite' : 'Desbloquear con más tareas'}
+                  {farmingLevel === 2 ? '⚡ Nivel 2 Élite Activo (Super Minado)' : 'Activar Nivel 2 Élite'}
                 </button>
               </div>
 
@@ -522,7 +502,7 @@ export default function FaucetDashboard() {
                 <div key={i} className={`p-4 rounded-xl border flex items-center justify-between ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                   <div>
                     <h4 className="font-bold text-sm">Shortlink Wall #{i}</h4>
-                    <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Recompensa: 0.001 USDT + 1 Tarea de Farming</p>
+                    <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Recompensa: 0.001 USDT</p>
                   </div>
                   <button onClick={triggerShortlinkView} className="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all">
                     Visitar Enlace
@@ -545,7 +525,7 @@ export default function FaucetDashboard() {
                 <div key={i} className={`p-4 rounded-xl border flex items-center justify-between ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                   <div>
                     <h4 className="font-bold text-sm">Anuncio PTC #{i} (10s)</h4>
-                    <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Recompensa: 0.0005 USDT + 1 Tarea de Farming</p>
+                    <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Recompensa: 0.0005 USDT</p>
                   </div>
                   <button onClick={triggerPtcView} className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all">
                     Ver Anuncio
