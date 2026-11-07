@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Sun, Moon, Wallet, Clock, CheckCircle2, 
   ArrowUpRight, ShieldCheck, RefreshCw, Coins, 
-  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X, AlertCircle 
+  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X 
 } from 'lucide-react';
 
 export default function FaucetDashboard() {
@@ -13,8 +13,11 @@ export default function FaucetDashboard() {
   const [balanceUSDT, setBalanceUSDT] = useState(24.5000);
 
   // Contadores de límites diarios
-  const [dailyVideoClaims, setDailyVideoClaims] = useState(3); // Ejemplo: ya usó 3 de 10
-  const [dailyTotalClaims, setDailyTotalClaims] = useState(12); // Ejemplo: ya hizo 12 de 50
+  const [dailyVideoClaims, setDailyVideoClaims] = useState(3);
+  const [dailyTotalClaims, setDailyTotalClaims] = useState(12);
+
+  // Estado del Bono Diario
+  const [dailyBonusClaimed, setDailyBonusClaimed] = useState(false);
 
   // Redes disponibles para USDT
   const networks = [
@@ -26,15 +29,14 @@ export default function FaucetDashboard() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [isClaiming, setIsClaiming] = useState(false);
 
-  // Estados para el Captcha y Video Ad
+  // Estados para el Captcha y Video Ad de Faucet
   const [showCaptchaModal, setShowCaptchaModal] = useState(false);
   const [captchaVerified, setCaptchaVerified] = useState(false);
-  
-  // Estado para el Modal de Video Ad (15 segundos)
   const [showAdModal, setShowAdModal] = useState(false);
   const [adTimer, setAdTimer] = useState(15);
   const [isAdPlaying, setIsAdPlaying] = useState(false);
-  
+  const [activeAdType, setActiveAdType] = useState('faucet'); // 'faucet' o 'bonus'
+
   // Historial de reclamos
   const [claims, setClaims] = useState([
     { id: 1, asset: 'USDT (Solana)', amount: '0.00065 USDT (+30%)', type: 'Faucet (Video Ad)', status: 'Completado', time: 'Hace 5 min' },
@@ -58,12 +60,16 @@ export default function FaucetDashboard() {
       }, 1000);
     } else if (adTimer === 0 && isAdPlaying) {
       setIsAdPlaying(false);
-      executeFinalClaim('bonus');
+      if (activeAdType === 'faucet') {
+        executeFinalClaim('bonus');
+      } else if (activeAdType === 'bonus') {
+        executeBonusClaim();
+      }
     }
     return () => clearInterval(adInterval);
-  }, [isAdPlaying, adTimer]);
+  }, [isAdPlaying, adTimer, activeAdType]);
 
-  // Paso 1: Al hacer clic en Claim
+  // Faucet: Paso 1
   const handleClaimClick = () => {
     if (timeLeft > 0 || isClaiming) return;
     if (dailyTotalClaims >= 50) {
@@ -74,22 +80,23 @@ export default function FaucetDashboard() {
     setShowCaptchaModal(true);
   };
 
-  // Paso 2: Al verificar el captcha
+  // Faucet: Paso 2
   const handleCaptchaPassed = () => {
     setShowCaptchaModal(false);
+    setActiveAdType('faucet');
     setShowAdModal(true);
   };
 
-  // Paso 3A: Reclamar recompensa base sin video
+  // Faucet: Reclamo Normal
   const handleNormalClaim = () => {
     setShowAdModal(false);
     executeFinalClaim('base');
   };
 
-  // Paso 3B: Iniciar reproducción del Video Ad de 15s para el +30%
+  // Faucet: Iniciar Video Ad
   const startVideoAd = () => {
     if (dailyVideoClaims >= 10) {
-      alert("Has alcanzado el límite diario de 10 videos con bonificación. Puedes reclamar la versión base.");
+      alert("Has alcanzado el límite diario de 10 videos con bonificación.");
       return;
     }
     setAdTimer(15);
@@ -97,7 +104,7 @@ export default function FaucetDashboard() {
     setIsAdPlaying(true);
   };
 
-  // Ejecución final del reclamo
+  // Ejecución final del reclamo de Faucet
   const executeFinalClaim = (type) => {
     setIsClaiming(true);
 
@@ -126,6 +133,33 @@ export default function FaucetDashboard() {
         ...prev
       ]);
     }, 1000);
+  };
+
+  // Bono Diario: Al hacer clic en reclamar bono
+  const handleBonusClick = () => {
+    if (dailyBonusClaimed) return;
+    setActiveAdType('bonus');
+    setAdTimer(15);
+    setIsAdPlaying(true);
+  };
+
+  // Ejecución final del Bono Diario tras ver el video
+  const executeBonusClaim = () => {
+    setDailyBonusClaimed(true);
+    const bonusAmount = 0.00500; // Ejemplo de bono diario en USDT
+
+    setBalanceUSDT(prev => prev + bonusAmount);
+    setClaims(prev => [
+      { 
+        id: Date.now(), 
+        asset: 'USDT (Global)', 
+        amount: `${bonusAmount.toFixed(5)} USDT`, 
+        type: 'Bono Diario (Video Ad)', 
+        status: 'Completado', 
+        time: 'Ahora mismo' 
+      },
+      ...prev
+    ]);
   };
 
   return (
@@ -223,12 +257,12 @@ export default function FaucetDashboard() {
               </div>
 
               <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Seguridad Activa</p>
+                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Bono Diario</p>
                 <div className="flex items-center gap-2 mt-3">
-                  <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="font-bold text-sm">Anti-Bot & Captcha</span>
+                  <span className={`w-3 h-3 rounded-full ${dailyBonusClaimed ? 'bg-slate-500' : 'bg-amber-500 animate-pulse'}`}></span>
+                  <span className="font-bold text-sm">{dailyBonusClaimed ? 'Reclamado hoy' : 'Disponible para ver video'}</span>
                 </div>
-                <p className={`mt-3 text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Protección optimizada en redes</p>
+                <p className={`mt-3 text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Renovación cada 24 horas</p>
               </div>
             </div>
 
@@ -261,7 +295,7 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 2: FAUCET CON SELECCIÓN DE RED Y LÍMITES */}
+        {/* VISTA 2: FAUCET */}
         {activeTab === 'faucet' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -271,7 +305,6 @@ export default function FaucetDashboard() {
               Gana <strong className="text-emerald-400">0.00050 USDT</strong> base o mira un video de 15s para obtener un <strong className="text-amber-400">+30% extra (0.00065 USDT)</strong>. (Disponibles hoy: {10 - dailyVideoClaims} videos restantes).
             </p>
 
-            {/* Selector de Redes (Solana o BNB) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               {networks.map((net) => (
                 <button
@@ -296,7 +329,6 @@ export default function FaucetDashboard() {
               ))}
             </div>
 
-            {/* Botón de Reclamo Principal */}
             <div className={`p-6 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${darkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-100 border-slate-200'}`}>
               <div>
                 <h4 className="font-bold text-base">Reclamar en {selectedNetwork.name}</h4>
@@ -323,7 +355,7 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* MÁS SECCIONES */}
+        {/* VISTA 3: SHORTLINKS */}
         {activeTab === 'shortlinks' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -345,6 +377,7 @@ export default function FaucetDashboard() {
           </div>
         )}
 
+        {/* VISTA 4: PTC */}
         {activeTab === 'ptc' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -366,6 +399,7 @@ export default function FaucetDashboard() {
           </div>
         )}
 
+        {/* VISTA 5: TAREAS */}
         {activeTab === 'tasks' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -380,13 +414,24 @@ export default function FaucetDashboard() {
           </div>
         )}
 
+        {/* VISTA 6: BONO DIARIO CON VIDEO AD DE 15s */}
         {activeTab === 'bonus' && (
           <div className={`p-6 rounded-2xl border text-center ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-            <Gift className="mx-auto text-cyan-400 mb-2" size={40} />
+            <Gift className="mx-auto text-amber-400 mb-2 animate-bounce" size={44} />
             <h3 className="text-xl font-bold">Bono Diario en USDT</h3>
-            <p className={`text-xs mt-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Reclama tu bonificación gratuita cada 24 horas.</p>
-            <button className="mt-6 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-sm shadow-lg shadow-orange-500/20">
-              ¡Reclamar Bono USDT!
+            <p className={`text-xs mt-1 max-w-md mx-auto ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              Mira un breve video patrocinado de 15 segundos para reclamar tu bonificación diaria acumulativa de <strong className="text-emerald-400">0.00500 USDT</strong>.
+            </p>
+            <button 
+              disabled={dailyBonusClaimed}
+              onClick={handleBonusClick}
+              className={`mt-6 px-8 py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${
+                dailyBonusClaimed 
+                  ? 'bg-slate-700 text-slate-400 cursor-not-allowed opacity-60' 
+                  : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-orange-500/20 active:scale-95'
+              }`}
+            >
+              {dailyBonusClaimed ? '✓ Bono Diario Reclamado (Vuelve mañana)' : '▶ Ver Video & Reclamar Bono USDT'}
             </button>
           </div>
         )}
@@ -500,7 +545,6 @@ export default function FaucetDashboard() {
             </p>
 
             <div className="space-y-3 mb-6">
-              {/* Opción con Video Ad (Si le quedan videos diarios) */}
               <button
                 disabled={dailyVideoClaims >= 10}
                 onClick={startVideoAd}
@@ -520,7 +564,6 @@ export default function FaucetDashboard() {
                 <PlaySquare className="text-amber-400 group-hover:scale-110 transition-transform" size={28} />
               </button>
 
-              {/* Opción Normal */}
               <button
                 onClick={handleNormalClaim}
                 className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between ${darkMode ? 'border-slate-800 bg-slate-950 hover:bg-slate-800/50' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'}`}
@@ -543,27 +586,27 @@ export default function FaucetDashboard() {
         </div>
       )}
 
-      {/* MODAL 3: REPRODUCTOR SIMULADO DE VIDEO AD (15 SEGUNDOS) */}
+      {/* MODAL 3: REPRODUCTOR SIMULADO DE VIDEO AD (15 SEGUNDOS - FAUCET O BONO) */}
       {isAdPlaying && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
           <div className="w-full max-w-lg p-8 rounded-2xl border border-slate-800 bg-slate-950 text-center space-y-6 shadow-2xl">
             <div className="flex justify-between items-center">
               <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                Reproduciendo Video Patrocinado (15s)...
+                Reproduciendo Video Patrocinado ({activeAdType === 'bonus' ? 'Bono Diario' : 'Faucet'}) - 15s...
               </span>
               <span className="text-sm font-bold text-slate-400">
                 Cierre en <strong className="text-cyan-400">{adTimer}s</strong>
               </span>
             </div>
 
-            {/* Pantalla simulada del video ad */}
             <div className="w-full h-48 rounded-xl bg-gradient-to-br from-slate-900 to-slate-900 border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
               <div className="absolute inset-0 bg-cyan-500/5 animate-pulse"></div>
               <PlaySquare className="text-cyan-400 mb-2 animate-bounce" size={48} />
               <h4 className="font-bold text-base text-slate-200">Patrocinador LabCoin Ads</h4>
-              <p className="text-xs text-slate-400 mt-1">Disfruta el video para acreditar tu +30% extra en USDT</p>
+              <p className="text-xs text-slate-400 mt-1">
+                {activeAdType === 'bonus' ? 'Mira el video para acreditar tu Bono Diario en USDT' : 'Disfruta el video para acreditar tu +30% extra en USDT'}
+              </p>
               
-              {/* Barra de progreso visual adaptada a 15 segundos */}
               <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-800">
                 <div 
                   className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-1000"
@@ -573,7 +616,7 @@ export default function FaucetDashboard() {
             </div>
 
             <p className="text-xs text-slate-500">
-              Mantén abierta la ventana para asegurar tu bonificación diaria ({dailyVideoClaims + 1}/10).
+              Mantén abierta la ventana para asegurar tu acreditación automática.
             </p>
           </div>
         </div>
