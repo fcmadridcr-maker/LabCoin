@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Sun, Moon, Wallet, Clock, CheckCircle2, 
   ArrowUpRight, ShieldCheck, RefreshCw, Coins, 
-  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X, Cpu, Zap, Download, Activity, Sparkles, Flame 
+  ExternalLink, MousePointerClick, ListTodo, Gift, LayoutDashboard, PlaySquare, X, Cpu, Zap, Download, Activity, Sparkles, Flame, Timer 
 } from 'lucide-react';
 
 export default function FaucetDashboard() {
@@ -11,7 +11,7 @@ export default function FaucetDashboard() {
   
   // Balances
   const [balanceUSDT, setBalanceUSDT] = useState(24.5000);
-  const [miningPower, setMiningPower] = useState(125.50); // Puntos de Poder / Hashrate para farmear
+  const [miningPower, setMiningPower] = useState(125.50); // Puntos de Poder
 
   // Misiones diarias
   const [dailyVideoClaims, setDailyVideoClaims] = useState(5);
@@ -20,9 +20,11 @@ export default function FaucetDashboard() {
   const [ptcDone, setPtcDone] = useState(4);
   const [dailyBonusClaimed, setDailyBonusClaimed] = useState(false);
 
-  // Estado del Farming
+  // Estado del Farming y el Límite de 2 Horas (7200 segundos)
   const [farmingLevel, setFarmingLevel] = useState(1); 
   const [farmedEarnings, setFarmedEarnings] = useState(0.00015); 
+  const MAX_FARM_TIME = 7200; // 2 horas en segundos
+  const [farmTimeLeft, setFarmTimeLeft] = useState(7200);
 
   // Redes disponibles para USDT
   const networks = [
@@ -47,7 +49,7 @@ export default function FaucetDashboard() {
     { id: 1, asset: 'USDT (Solana)', amount: '0.00030 USDT (+30%)', type: 'Faucet (Video Ad)', status: 'Completado', time: 'Hace 5 min' },
   ]);
 
-  // Temporizadores
+  // Temporizadores generales
   useEffect(() => {
     if (timeLeft > 0) {
       const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
@@ -55,21 +57,21 @@ export default function FaucetDashboard() {
     }
   }, [timeLeft]);
 
-  // Simulación de acumulación pasiva basada en el Poder de Minería y Nivel (1.0x / 1.2x)
+  // Simulación de acumulación pasiva y conteo regresivo de las 2 horas
   useEffect(() => {
     let farmInterval;
-    if (farmingLevel > 0 && miningPower > 0) {
+    if (farmingLevel > 0 && miningPower > 0 && farmTimeLeft > 0) {
       farmInterval = setInterval(() => {
-        // La tasa depende de cuántos puntos de poder tenga el usuario (más puntos = mayor rendimiento pasivo)
         const baseRate = 0.00000001 * miningPower; 
         const multiplier = farmingLevel === 1 ? 1.0 : 1.2;
         const currentRate = baseRate * multiplier;
         
         setFarmedEarnings(prev => prev + currentRate);
+        setFarmTimeLeft(prev => Math.max(0, prev - 1));
       }, 1000);
     }
     return () => clearInterval(farmInterval);
-  }, [farmingLevel, miningPower]);
+  }, [farmingLevel, miningPower, farmTimeLeft]);
 
   // Temporizador de Video Ad
   useEffect(() => {
@@ -115,7 +117,7 @@ export default function FaucetDashboard() {
   const executeFinalClaim = (type) => {
     setIsClaiming(true);
     const earnedAmount = type === 'bonus' ? selectedNetwork.bonusReward : selectedNetwork.baseReward;
-    const powerReward = 10.00; // Ganas 10 puntos de poder al reclamar el faucet
+    const powerReward = 10.00;
     const typeLabel = type === 'bonus' ? 'Faucet (Video Ad + Power)' : 'Faucet Base + Power';
 
     if (type === 'bonus') setDailyVideoClaims(prev => prev + 1);
@@ -125,7 +127,7 @@ export default function FaucetDashboard() {
       setIsClaiming(false);
       setTimeLeft(selectedNetwork.waitTime);
       setBalanceUSDT(prev => prev + earnedAmount);
-      setMiningPower(prev => prev + powerReward); // Suma poder para el farming
+      setMiningPower(prev => prev + powerReward);
       setClaims(prev => [
         { id: Date.now(), asset: `USDT (${selectedNetwork.name.split(' ')[0]})`, amount: `${earnedAmount.toFixed(5)} USDT (+10 Puntos)`, type: typeLabel, status: 'Completado', time: 'Ahora mismo' },
         ...prev
@@ -160,7 +162,7 @@ export default function FaucetDashboard() {
 
   const executePtcClaim = () => {
     setPtcDone(prev => prev + 1);
-    setMiningPower(prev => prev + 5.00); // Ganas 5 puntos por anuncio PTC
+    setMiningPower(prev => prev + 5.00);
   };
 
   const triggerShortlinkView = () => {
@@ -171,22 +173,33 @@ export default function FaucetDashboard() {
 
   const executeShortlinkClaim = () => {
     setShortlinksDone(prev => prev + 1);
-    setMiningPower(prev => prev + 15.00); // Ganas 15 puntos por shortlink
+    setMiningPower(prev => prev + 15.00);
   };
 
   const toggleFarmingLevel = (level) => {
     setFarmingLevel(farmingLevel === level ? 0 : level);
   };
 
+  // RECOGER COSECHA Y REINICIAR CONTADOR DE 2 HORAS
   const handleClaimFarm = () => {
     if (farmedEarnings <= 0) return;
     const collected = farmedEarnings;
     setBalanceUSDT(prev => prev + collected);
     setFarmedEarnings(0);
+    setFarmTimeLeft(MAX_FARM_TIME); // Reinicia el ciclo de 2 horas
     setClaims(prev => [
-      { id: Date.now(), asset: 'USDT (Farming Bot)', amount: `${collected.toFixed(6)} USDT`, type: 'Cosecha de Poder', status: 'Completado', time: 'Ahora mismo' },
+      { id: Date.now(), asset: 'USDT (Farming Bot)', amount: `${collected.toFixed(6)} USDT`, type: 'Cosecha (Reinicio 2h)', status: 'Completado', time: 'Ahora mismo' },
       ...prev
     ]);
+  };
+
+  // Formato para ver MM:SS o HH:MM:SS en el temporizador
+  const formatTime = (seconds) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    if (hrs > 0) return `${hrs}h ${mins}m ${secs}s`;
+    return `${mins}m ${secs}s`;
   };
 
   return (
@@ -260,7 +273,7 @@ export default function FaucetDashboard() {
                   : 'border-transparent text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Icon size={16} /> {tab.label} {tab.id === 'farming' && farmingLevel > 0 && <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>}
+              <Icon size={16} /> {tab.label} {tab.id === 'farming' && farmTimeLeft > 0 && <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>}
             </button>
           );
         })}
@@ -281,27 +294,29 @@ export default function FaucetDashboard() {
                 </div>
               </div>
 
-              {/* Poder de Minería en Dashboard */}
+              {/* Estado del Bot y Ciclo de 2 Horas */}
+              <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
+                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Ciclo de Minería (2h Máx)</p>
+                <div className="flex items-center gap-2 mt-3">
+                  <Timer className={farmTimeLeft > 0 ? "text-cyan-400 animate-pulse" : "text-amber-500"} size={20} />
+                  <span className="font-extrabold text-lg text-cyan-400">
+                    {farmTimeLeft > 0 ? formatTime(farmTimeLeft) : '¡Bot Pausado! (Recoge)'}
+                  </span>
+                </div>
+                <div className="mt-3 flex items-center justify-between text-xs">
+                  <span className={darkMode ? 'text-slate-400' : 'text-slate-500'}>Cosecha acumulada:</span>
+                  <strong className="text-cyan-400">{farmedEarnings.toFixed(6)} USDT</strong>
+                </div>
+              </div>
+
+              {/* Poder de Minería */}
               <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
                 <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Poder de Minería Activo</p>
                 <div className="flex items-center gap-2 mt-3">
                   <Flame className="text-amber-400 animate-bounce" size={20} />
                   <span className="font-extrabold text-xl text-cyan-400">{miningPower.toFixed(2)} <span className="text-xs font-normal text-slate-400">Pts</span></span>
                 </div>
-                <p className={`mt-2 text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Gana más puntos haciendo faucets y tareas</p>
-              </div>
-
-              {/* Estado de Farming */}
-              <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-                <p className={`text-sm font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Cosecha del Bot</p>
-                <div className="flex items-center gap-2 mt-3">
-                  <span className={`w-3 h-3 rounded-full ${farmingLevel > 0 ? 'bg-cyan-400 animate-pulse' : 'bg-amber-500'}`}></span>
-                  <span className="font-bold text-sm">{farmingLevel > 0 ? `Activo (Nivel ${farmingLevel})` : 'Inactivo'}</span>
-                </div>
-                <div className="mt-3 flex items-center justify-between text-xs">
-                  <span className={darkMode ? 'text-slate-400' : 'text-slate-500'}>Acumulado:</span>
-                  <strong className="text-cyan-400">{farmedEarnings.toFixed(6)} USDT</strong>
-                </div>
+                <p className={`mt-2 text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Gana puntos haciendo faucets y tareas</p>
               </div>
             </div>
 
@@ -394,7 +409,7 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 3: PESTAÑA DE FARMING CON CAJA INTERACTIVA Y PODER */}
+        {/* VISTA 3: PESTAÑA DE FARMING CON LÍNEA NEÓN Y LÍMITE DE 2 HORAS */}
         {activeTab === 'farming' && (
           <div className={`p-8 rounded-2xl border space-y-8 relative overflow-hidden ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             
@@ -415,12 +430,12 @@ export default function FaucetDashboard() {
                     <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">Poder: {miningPower.toFixed(1)} Pts</span>
                   </h3>
                   <p className={`text-xs mt-0.5 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                    Estado: <strong className="text-cyan-400">{farmingLevel === 0 ? 'Inactivo' : `Nivel ${farmingLevel} (${farmingLevel === 1 ? '1.0x' : '1.2x'}) Operativo`}</strong>
+                    Estado: <strong className="text-cyan-400">{farmTimeLeft > 0 ? `Minando (${formatTime(farmTimeLeft)} restantes)` : 'Bot Pausado (Tanque lleno)'}</strong>
                   </p>
                 </div>
               </div>
 
-              {/* Botón de Recoger Cosecha */}
+              {/* Botón de Recoger Cosecha & Reiniciar 2h */}
               <div className={`p-4 rounded-xl border flex items-center gap-4 ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                 <div>
                   <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Cosecha Disponible:</p>
@@ -435,49 +450,61 @@ export default function FaucetDashboard() {
                       : 'bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 text-slate-950 active:scale-95 cursor-pointer shadow-cyan-500/20'
                   }`}
                 >
-                  <Download size={14} /> Recoger
+                  <Download size={14} /> Recoger & Reiniciar
                 </button>
               </div>
             </div>
 
-            {/* CAJA INTERACTIVA ANIMADA DE MINERÍA */}
+            {/* CAJA INTERACTIVA ANIMADA DE MINERÍA CON PROGRESO DE 2 HORAS */}
             <div className={`p-6 rounded-2xl border relative overflow-hidden text-center transition-all ${
-              farmingLevel > 0 
+              farmTimeLeft > 0 
                 ? (darkMode ? 'bg-slate-950/90 border-cyan-500/50 shadow-[0_0_30px_rgba(6,182,212,0.15)]' : 'bg-cyan-50/50 border-cyan-400 shadow-md')
-                : (darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200')
+                : (darkMode ? 'bg-amber-950/30 border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.15)]' : 'bg-amber-50 border-amber-300')
             }`}>
               
-              {farmingLevel > 0 && (
+              {farmTimeLeft > 0 && (
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-emerald-500/5 to-cyan-500/5 animate-pulse pointer-events-none"></div>
               )}
 
               <div className="relative z-10 flex flex-col items-center space-y-4">
                 
                 <div className="relative flex items-center justify-center">
-                  <div className={`absolute w-28 h-28 rounded-full border border-cyan-500/30 ${farmingLevel > 0 ? 'animate-ping' : ''}`}></div>
-                  <div className={`absolute w-36 h-36 rounded-full border border-emerald-500/20 ${farmingLevel > 0 ? 'animate-pulse' : ''}`}></div>
+                  <div className={`absolute w-28 h-28 rounded-full border border-cyan-500/30 ${farmTimeLeft > 0 ? 'animate-ping' : ''}`}></div>
+                  <div className={`absolute w-36 h-36 rounded-full border border-emerald-500/20 ${farmTimeLeft > 0 ? 'animate-pulse' : ''}`}></div>
                   
-                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center bg-gradient-to-tr from-cyan-500 to-emerald-500 shadow-xl shadow-cyan-500/30 ${farmingLevel > 0 ? 'pulse-core' : 'opacity-50'}`}>
-                    <Sparkles className="text-slate-950 animate-spin" style={{ animationDuration: '6s' }} size={36} />
+                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center bg-gradient-to-tr ${farmTimeLeft > 0 ? 'from-cyan-500 to-emerald-500 shadow-xl shadow-cyan-500/30 pulse-core' : 'from-amber-500 to-orange-500'}`}>
+                    {farmTimeLeft > 0 ? (
+                      <Sparkles className="text-slate-950 animate-spin" style={{ animationDuration: '6s' }} size={36} />
+                    ) : (
+                      <Timer className="text-slate-950 animate-bounce" size={36} />
+                    )}
                   </div>
                 </div>
 
                 <div>
                   <h4 className="font-extrabold text-lg flex items-center justify-center gap-2">
-                    {farmingLevel > 0 ? (
+                    {farmTimeLeft > 0 ? (
                       <>
                         <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
-                        Minando con {miningPower.toFixed(1)} Pts de Poder ({farmingLevel === 1 ? '1.0x' : '1.2x'})...
+                        Minando con {miningPower.toFixed(1)} Pts ({farmingLevel === 1 ? '1.0x' : '1.2x'})...
                       </>
                     ) : (
-                      <span className="text-slate-500">Bot de Minería en Pausa</span>
+                      <span className="text-amber-400">¡Ciclo de 2 Horas Finalizado! Recoge para continuar</span>
                     )}
                   </h4>
                   <p className={`text-xs mt-1 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                    {farmingLevel > 0 
-                      ? 'El rendimiento escala automáticamente según tu poder de actividad.'
-                      : 'Activa un nivel de minería abajo para comenzar.'}
+                    {farmTimeLeft > 0 
+                      ? `El bot se detendrá automáticamente en ${formatTime(farmTimeLeft)} si no se reclama.`
+                      : 'El tanque de minería está lleno y en pausa. Haz clic en "Recoger & Reiniciar".'}
                   </p>
+                </div>
+
+                {/* Barra de Progreso de las 2 Horas */}
+                <div className="w-full max-w-md bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700">
+                  <div 
+                    className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-1000"
+                    style={{ width: `${(farmTimeLeft / MAX_FARM_TIME) * 100}%` }}
+                  ></div>
                 </div>
 
                 <div className={`px-6 py-3 rounded-2xl border font-mono text-2xl font-black tracking-wider ${
@@ -503,9 +530,9 @@ export default function FaucetDashboard() {
                     <span className="text-xs font-bold px-2.5 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">FARMING NIVEL 1</span>
                     <span className="text-xs text-cyan-400 font-mono font-bold">Multiplicador: 1.0x</span>
                   </div>
-                  <h4 className="font-bold text-base">Núcleo Base Sostenible</h4>
+                  <h4 className="font-bold text-base">Núcleo Base (Ciclo 2h)</h4>
                   <p className={`text-xs mt-2 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                    Utiliza tu poder acumulado para minar pasivamente USDT.
+                    Opera durante 2 horas consecutivas consumiendo tu poder activo.
                   </p>
                 </div>
 
@@ -534,9 +561,9 @@ export default function FaucetDashboard() {
                     </span>
                     <span className="text-xs text-cyan-300 font-mono font-bold">Multiplicador: 1.2x (+20%)</span>
                   </div>
-                  <h4 className="font-bold text-base">Acelerador de Poder</h4>
+                  <h4 className="font-bold text-base">Acelerador de Poder (Ciclo 2h)</h4>
                   <p className={`text-xs mt-2 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                    Incrementa un 20% extra la conversión de tus puntos de poder a USDT.
+                    Incrementa un 20% extra la acumulación durante el ciclo de 2 horas.
                   </p>
                 </div>
 
@@ -556,7 +583,7 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 4: SHORTLINKS (Dan +15 Puntos) */}
+        {/* VISTA 4: SHORTLINKS */}
         {activeTab === 'shortlinks' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
@@ -579,7 +606,7 @@ export default function FaucetDashboard() {
           </div>
         )}
 
-        {/* VISTA 5: PTC (Dan +5 Puntos) */}
+        {/* VISTA 5: PTC */}
         {activeTab === 'ptc' && (
           <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
